@@ -1,12 +1,21 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import ContactInfo from '../components/ContactInfo';
+import ExperienceList from '../components/ExperienceList';
+import HeroCenter from '../components/HeroCenter';
+import ParallaxColumns from '../components/ParallaxColumns';
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="bg-background text-foreground">
+      {/* Hero Section */}
+      <section className="relative min-h-screen">
+        <ContactInfo />
+        <ExperienceList />
+        <HeroCenter />
+      </section>
+
+      {/* Parallax Columns Section */}
+      <ParallaxColumns />
     </div>
   );
 };
