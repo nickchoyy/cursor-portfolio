@@ -15,18 +15,25 @@ const ParallaxColumns = () => {
     'Specialized in immersive experiences',
     'Unity & C# development',
     'Creative technologist',
-    'Based in Los Angeles, CA'
+    'Based in Los Angeles, CA',
+    'Expert in spatial computing',
+    'Design systems architect',
+    'User research specialist'
   ];
 
   const workItems = [
     'Meta Reality Labs - AR Platform',
-    'PlaybookXR - VR Training Solutions',
+    'PlaybookXR - VR Training Solutions', 
     'Wondr - Design System Architecture',
     'Vertiigo - Browser Extension UX',
     'ZOE - Health App Growth',
     'Kiwi.com - Travel Platform',
     'Undout - Brand Identity',
-    'Zero - Mobile Experience'
+    'Zero - Mobile Experience',
+    'Rigup - Workforce Platform',
+    'Avocode - Design Tools',
+    'Avast - Security Products',
+    'DevCompany - Digital Solutions'
   ];
 
   const playgroundItems = [
@@ -37,18 +44,27 @@ const ParallaxColumns = () => {
     'VR Prototypes',
     'Creative Coding Projects',
     'Machine Learning Models',
-    'Digital Art Pieces'
+    'Digital Art Pieces',
+    'Experimental Interfaces',
+    'Motion Graphics',
+    'Interactive Visualizations',
+    'Parametric Design'
   ];
 
-  // Calculate transforms for parallax effect
-  const leftTransform = `translateY(${scrollY * 0.1}px)`;
-  const centerTransform = `translateY(${scrollY * 0.05}px)`;
-  const rightTransform = `translateY(${scrollY * 0.1}px)`;
+  // Enhanced parallax calculations for infinite scrolling effect
+  const leftOffset = (scrollY * 0.3) % (aboutItems.length * 120);
+  const centerOffset = (scrollY * 0.6) % (workItems.length * 120); // Faster middle column
+  const rightOffset = (scrollY * 0.3) % (playgroundItems.length * 120);
+
+  // Create duplicated arrays for seamless infinite scroll
+  const duplicatedAbout = [...aboutItems, ...aboutItems, ...aboutItems];
+  const duplicatedWork = [...workItems, ...workItems, ...workItems];
+  const duplicatedPlayground = [...playgroundItems, ...playgroundItems, ...playgroundItems];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Sticky header */}
-      <div className="sticky top-0 bg-background border-b border-border z-40">
+    <div className="fixed inset-0 bg-background z-30" style={{ top: '100vh' }}>
+      {/* Sticky header that covers the hero when scrolled */}
+      <div className="sticky top-0 bg-background border-b border-border z-40 backdrop-blur-sm">
         <div className="grid grid-cols-3 gap-8 px-8 py-6">
           <div className="text-center">
             <h2 className="text-lg font-mono font-medium">About</h2>
@@ -62,54 +78,60 @@ const ParallaxColumns = () => {
         </div>
       </div>
 
-      {/* Parallax content */}
-      <div className="grid grid-cols-3 gap-8 px-8 py-16">
-        {/* Left column - About */}
+      {/* Infinite scrolling parallax content */}
+      <div className="grid grid-cols-3 gap-8 px-8 py-16 h-screen overflow-hidden">
+        {/* Left column - About (slower) */}
         <div 
-          className="space-y-8"
-          style={{ transform: leftTransform }}
+          className="space-y-8 will-change-transform"
+          style={{ 
+            transform: `translateY(-${leftOffset}px)`,
+            transition: 'none'
+          }}
         >
-          {aboutItems.map((item, index) => (
+          {duplicatedAbout.map((item, index) => (
             <div 
               key={index}
-              className="p-6 border border-border transition-all duration-300 hover:border-foreground/30"
+              className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 min-h-[104px] flex items-center"
             >
               <p className="text-sm font-mono leading-relaxed">{item}</p>
             </div>
           ))}
-          <div className="h-96"></div> {/* Spacer for scrolling */}
         </div>
 
-        {/* Center column - Work */}
+        {/* Center column - Work (fastest) */}
         <div 
-          className="space-y-8"
-          style={{ transform: centerTransform }}
+          className="space-y-8 will-change-transform"
+          style={{ 
+            transform: `translateY(-${centerOffset}px)`,
+            transition: 'none'
+          }}
         >
-          {workItems.map((item, index) => (
+          {duplicatedWork.map((item, index) => (
             <div 
               key={index}
-              className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 cursor-pointer"
+              className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 cursor-pointer min-h-[104px] flex items-center"
             >
               <p className="text-sm font-mono leading-relaxed">{item}</p>
             </div>
           ))}
-          <div className="h-96"></div> {/* Spacer for scrolling */}
         </div>
 
-        {/* Right column - Playground */}
+        {/* Right column - Playground (slower) */}
         <div 
-          className="space-y-8"
-          style={{ transform: rightTransform }}
+          className="space-y-8 will-change-transform"
+          style={{ 
+            transform: `translateY(-${rightOffset}px)`,
+            transition: 'none'
+          }}
         >
-          {playgroundItems.map((item, index) => (
+          {duplicatedPlayground.map((item, index) => (
             <div 
               key={index}
-              className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 cursor-pointer"
+              className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 cursor-pointer min-h-[104px] flex items-center"
             >
               <p className="text-sm font-mono leading-relaxed">{item}</p>
             </div>
           ))}
-          <div className="h-96"></div> {/* Spacer for scrolling */}
         </div>
       </div>
     </div>

@@ -14,8 +14,11 @@ const Index = () => {
         <HeroCenter />
       </section>
 
-      {/* Parallax Columns Section */}
+      {/* Parallax Columns Section - takes over when scrolled to */}
       <ParallaxColumns />
+      
+      {/* Additional height to enable scrolling */}
+      <div className="h-[200vh]"></div>
     </div>
   );
 };
