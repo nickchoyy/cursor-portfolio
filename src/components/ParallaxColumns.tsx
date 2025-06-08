@@ -51,97 +51,106 @@ const ParallaxColumns = () => {
     'Parametric Design'
   ];
 
-  // Enhanced parallax calculations for infinite scrolling effect
-  const leftOffset = (scrollY * 0.3) % (aboutItems.length * 120);
-  const centerOffset = (scrollY * 0.8) % (workItems.length * 120); // Faster middle column
-  const rightOffset = (scrollY * 0.3) % (playgroundItems.length * 120);
+  // Enhanced parallax calculations for true infinite scrolling
+  const leftOffset = (scrollY * 0.4) % (aboutItems.length * 120);
+  const centerOffset = (scrollY * 1.2) % (workItems.length * 120); // Much faster middle column
+  const rightOffset = (scrollY * 0.4) % (playgroundItems.length * 120);
 
-  // Create duplicated arrays for seamless infinite scroll
-  const duplicatedAbout = [...aboutItems, ...aboutItems, ...aboutItems];
-  const duplicatedWork = [...workItems, ...workItems, ...workItems];
-  const duplicatedPlayground = [...playgroundItems, ...playgroundItems, ...playgroundItems];
+  // Create multiple duplicated arrays for seamless infinite scroll
+  const duplicatedAbout = [...aboutItems, ...aboutItems, ...aboutItems, ...aboutItems];
+  const duplicatedWork = [...workItems, ...workItems, ...workItems, ...workItems];
+  const duplicatedPlayground = [...playgroundItems, ...playgroundItems, ...playgroundItems, ...playgroundItems];
 
-  // Calculate when to show the parallax section (after hero section)
-  const showParallax = scrollY > window.innerHeight * 0.8;
+  // Show parallax section much earlier for closer positioning
+  const showParallax = scrollY > window.innerHeight * 0.4;
 
   return (
-    <div 
-      className={`fixed inset-0 bg-background z-30 transition-transform duration-500 ${
-        showParallax ? 'translate-y-0' : 'translate-y-full'
-      }`}
-    >
-      {/* Sticky header */}
-      <div className="sticky top-0 bg-background border-b border-border z-40 backdrop-blur-sm">
-        <div className="grid grid-cols-3 gap-8 px-8 py-6">
-          <div className="text-center">
-            <h2 className="text-lg font-mono font-medium">About</h2>
+    <>
+      {/* Overlay to hide contact/experience when parallax is active */}
+      <div 
+        className={`fixed inset-0 bg-background z-20 transition-opacity duration-700 ${
+          showParallax ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      />
+      
+      <div 
+        className={`fixed inset-0 bg-background z-30 transition-all duration-700 ease-out ${
+          showParallax ? 'translate-y-0' : 'translate-y-full'
+        }`}
+      >
+        {/* Sticky header */}
+        <div className="sticky top-0 bg-background border-b border-border z-40 backdrop-blur-sm">
+          <div className="grid grid-cols-3 gap-8 px-8 py-6">
+            <div className="text-center">
+              <h2 className="text-lg font-mono font-medium">About</h2>
+            </div>
+            <div className="text-center">
+              <h2 className="text-lg font-mono font-medium">Work</h2>
+            </div>
+            <div className="text-center">
+              <h2 className="text-lg font-mono font-medium">Playground</h2>
+            </div>
           </div>
-          <div className="text-center">
-            <h2 className="text-lg font-mono font-medium">Work</h2>
+        </div>
+
+        {/* Infinite scrolling parallax content */}
+        <div className="grid grid-cols-3 gap-8 px-8 py-16 h-screen overflow-hidden">
+          {/* Left column - About (slower) */}
+          <div 
+            className="space-y-8 will-change-transform"
+            style={{ 
+              transform: `translateY(-${leftOffset}px)`,
+              transition: 'none'
+            }}
+          >
+            {duplicatedAbout.map((item, index) => (
+              <div 
+                key={index}
+                className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 min-h-[104px] flex items-center"
+              >
+                <p className="text-sm font-mono leading-relaxed">{item}</p>
+              </div>
+            ))}
           </div>
-          <div className="text-center">
-            <h2 className="text-lg font-mono font-medium">Playground</h2>
+
+          {/* Center column - Work (fastest) */}
+          <div 
+            className="space-y-8 will-change-transform"
+            style={{ 
+              transform: `translateY(-${centerOffset}px)`,
+              transition: 'none'
+            }}
+          >
+            {duplicatedWork.map((item, index) => (
+              <div 
+                key={index}
+                className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 cursor-pointer min-h-[104px] flex items-center"
+              >
+                <p className="text-sm font-mono leading-relaxed">{item}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Right column - Playground (slower) */}
+          <div 
+            className="space-y-8 will-change-transform"
+            style={{ 
+              transform: `translateY(-${rightOffset}px)`,
+              transition: 'none'
+            }}
+          >
+            {duplicatedPlayground.map((item, index) => (
+              <div 
+                key={index}
+                className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 cursor-pointer min-h-[104px] flex items-center"
+              >
+                <p className="text-sm font-mono leading-relaxed">{item}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-
-      {/* Infinite scrolling parallax content */}
-      <div className="grid grid-cols-3 gap-8 px-8 py-16 h-screen overflow-hidden">
-        {/* Left column - About (slower) */}
-        <div 
-          className="space-y-8 will-change-transform"
-          style={{ 
-            transform: `translateY(-${leftOffset}px)`,
-            transition: 'none'
-          }}
-        >
-          {duplicatedAbout.map((item, index) => (
-            <div 
-              key={index}
-              className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 min-h-[104px] flex items-center"
-            >
-              <p className="text-sm font-mono leading-relaxed">{item}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Center column - Work (fastest) */}
-        <div 
-          className="space-y-8 will-change-transform"
-          style={{ 
-            transform: `translateY(-${centerOffset}px)`,
-            transition: 'none'
-          }}
-        >
-          {duplicatedWork.map((item, index) => (
-            <div 
-              key={index}
-              className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 cursor-pointer min-h-[104px] flex items-center"
-            >
-              <p className="text-sm font-mono leading-relaxed">{item}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Right column - Playground (slower) */}
-        <div 
-          className="space-y-8 will-change-transform"
-          style={{ 
-            transform: `translateY(-${rightOffset}px)`,
-            transition: 'none'
-          }}
-        >
-          {duplicatedPlayground.map((item, index) => (
-            <div 
-              key={index}
-              className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 cursor-pointer min-h-[104px] flex items-center"
-            >
-              <p className="text-sm font-mono leading-relaxed">{item}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 

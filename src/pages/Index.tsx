@@ -17,8 +17,8 @@ const Index = () => {
       {/* Parallax Columns Section - takes over when scrolled to */}
       <ParallaxColumns />
       
-      {/* Additional height to enable scrolling */}
-      <div className="h-[200vh]"></div>
+      {/* Additional height to enable infinite scrolling */}
+      <div className="h-[500vh]"></div>
     </div>
   );
 };
