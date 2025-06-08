@@ -53,7 +53,7 @@ const ParallaxColumns = () => {
 
   // Enhanced parallax calculations for infinite scrolling effect
   const leftOffset = (scrollY * 0.3) % (aboutItems.length * 120);
-  const centerOffset = (scrollY * 0.6) % (workItems.length * 120); // Faster middle column
+  const centerOffset = (scrollY * 0.8) % (workItems.length * 120); // Faster middle column
   const rightOffset = (scrollY * 0.3) % (playgroundItems.length * 120);
 
   // Create duplicated arrays for seamless infinite scroll
@@ -61,9 +61,16 @@ const ParallaxColumns = () => {
   const duplicatedWork = [...workItems, ...workItems, ...workItems];
   const duplicatedPlayground = [...playgroundItems, ...playgroundItems, ...playgroundItems];
 
+  // Calculate when to show the parallax section (after hero section)
+  const showParallax = scrollY > window.innerHeight * 0.8;
+
   return (
-    <div className="fixed inset-0 bg-background z-30" style={{ top: '100vh' }}>
-      {/* Sticky header that covers the hero when scrolled */}
+    <div 
+      className={`fixed inset-0 bg-background z-30 transition-transform duration-500 ${
+        showParallax ? 'translate-y-0' : 'translate-y-full'
+      }`}
+    >
+      {/* Sticky header */}
       <div className="sticky top-0 bg-background border-b border-border z-40 backdrop-blur-sm">
         <div className="grid grid-cols-3 gap-8 px-8 py-6">
           <div className="text-center">
