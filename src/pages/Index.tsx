@@ -7,7 +7,7 @@ import ParallaxColumns from '../components/ParallaxColumns';
 const Index = () => {
   return (
     <div className="bg-background text-foreground">
-      {/* Hero Section */}
+      {/* Hero Section - relative positioning for contact/experience */}
       <section className="relative min-h-screen">
         <ContactInfo />
         <ExperienceList />

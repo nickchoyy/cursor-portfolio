@@ -19,7 +19,7 @@ const experiences = [
 
 const ExperienceList = () => {
   return (
-    <div className="fixed top-6 right-6 z-50 max-w-xs">
+    <div className="absolute top-6 right-6 z-50 max-w-xs">
       <div className="text-right space-y-1">
         {experiences.map((exp, index) => (
           <div 

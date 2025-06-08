@@ -6,7 +6,7 @@ const ContactInfo = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="fixed top-8 left-8 z-50">
+    <div className="absolute top-8 left-8 z-50">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex items-center gap-2 text-sm font-mono transition-all duration-300 hover:opacity-70"

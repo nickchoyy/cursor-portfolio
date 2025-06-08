@@ -1,14 +1,36 @@
 
-import React, { useEffect, useState } from 'react';
-import { Progress } from './ui/progress';
+import React, { useEffect, useState, useRef } from 'react';
 
 const ParallaxColumns = () => {
   const [scrollY, setScrollY] = useState(0);
+  const [rainbowUnlocked, setRainbowUnlocked] = useState(false);
+  const loopHeightRef = useRef(0);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Set initial loop height
+    loopHeightRef.current = window.innerHeight * 3; // Approximate height of one loop
+  }, []);
+
+  useEffect(() => {
+    const handleInfiniteScroll = () => {
+      const scrollTop = window.scrollY;
+      const loopHeight = loopHeightRef.current;
+
+      // Loop logic - when we scroll past one loop, reset to beginning
+      if (scrollTop >= loopHeight && loopHeight > 0) {
+        window.scrollTo(0, scrollTop - loopHeight);
+        setRainbowUnlocked(true);
+      }
+    };
+
+    window.addEventListener('scroll', handleInfiniteScroll);
+    return () => window.removeEventListener('scroll', handleInfiniteScroll);
   }, []);
 
   const aboutItems = [
@@ -52,49 +74,56 @@ const ParallaxColumns = () => {
     'Parametric Design'
   ];
 
-  // Show parallax section earlier
-  const showParallax = scrollY > window.innerHeight * 0.3;
+  // Show parallax section when scrolled past hero
+  const showParallax = scrollY > window.innerHeight * 0.7;
   
-  // Calculate progress through the page
-  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  const scrollProgress = Math.min((scrollY / maxScroll) * 100, 100);
-  
-  // When we reach 80% scroll, enable infinite mode (rainbow progress)
-  const isInfiniteMode = scrollProgress >= 80;
+  // Calculate progress within the current loop
+  const loopHeight = loopHeightRef.current;
+  const progress = loopHeight > 0 ? ((scrollY % loopHeight) / loopHeight) * 100 : 0;
 
-  // Enhanced parallax calculations for true infinite scrolling
-  const leftOffset = (scrollY * 0.4) % (aboutItems.length * 120);
-  const centerOffset = (scrollY * 1.2) % (workItems.length * 120);
-  const rightOffset = (scrollY * 0.4) % (playgroundItems.length * 120);
+  // Parallax calculations for different column speeds
+  const leftOffset = scrollY * 0.3;
+  const centerOffset = scrollY * 0.8;
+  const rightOffset = scrollY * 0.3;
 
-  // Create multiple duplicated arrays for seamless infinite scroll
-  const duplicatedAbout = [...aboutItems, ...aboutItems, ...aboutItems, ...aboutItems];
-  const duplicatedWork = [...workItems, ...workItems, ...workItems, ...workItems];
-  const duplicatedPlayground = [...playgroundItems, ...playgroundItems, ...playgroundItems, ...playgroundItems];
+  const ColumnContent = ({ items, offset, title }: { items: string[], offset: number, title: string }) => (
+    <div className="w-full">
+      <div 
+        className="space-y-8 will-change-transform"
+        style={{ 
+          transform: `translateY(-${offset}px)`,
+          transition: 'none'
+        }}
+      >
+        {[...items, ...items, ...items, ...items].map((item, index) => (
+          <div 
+            key={index}
+            className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 min-h-[104px] flex items-center cursor-pointer"
+          >
+            <p className="text-sm font-mono leading-relaxed">{item}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <>
       {/* Progress bar - only show when parallax is active */}
       {showParallax && (
         <div className="fixed top-0 left-0 right-0 z-50 h-1">
-          <Progress 
-            value={scrollProgress} 
-            className={`h-full transition-all duration-300 ${
-              isInfiniteMode 
-                ? 'bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 via-indigo-500 to-purple-500' 
-                : ''
+          <div 
+            className={`h-full transition-all duration-200 ${
+              rainbowUnlocked 
+                ? 'bg-gradient-to-r from-red-500 via-orange-500 via-yellow-500 via-green-500 via-blue-500 via-indigo-500 to-violet-500' 
+                : 'bg-foreground'
             }`}
+            style={{ width: `${progress}%` }}
           />
         </div>
       )}
 
-      {/* Overlay to hide contact/experience when parallax is active */}
-      <div 
-        className={`fixed inset-0 bg-background z-20 transition-opacity duration-700 ${
-          showParallax ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      />
-      
+      {/* Parallax content wrapper */}
       <div 
         className={`fixed inset-0 bg-background z-30 transition-all duration-700 ease-out ${
           showParallax ? 'translate-y-0' : 'translate-y-full'
@@ -116,59 +145,19 @@ const ParallaxColumns = () => {
         </div>
 
         {/* Infinite scrolling parallax content */}
-        <div className="grid grid-cols-3 gap-8 px-8 py-16 h-screen overflow-hidden">
-          {/* Left column - About (slower) */}
-          <div 
-            className="space-y-8 will-change-transform"
-            style={{ 
-              transform: `translateY(-${leftOffset}px)`,
-              transition: 'none'
-            }}
-          >
-            {duplicatedAbout.map((item, index) => (
-              <div 
-                key={index}
-                className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 min-h-[104px] flex items-center"
-              >
-                <p className="text-sm font-mono leading-relaxed">{item}</p>
-              </div>
-            ))}
+        <div className="scroll-wrapper">
+          {/* First loop */}
+          <div className="loop grid grid-cols-3 gap-8 px-8 py-16 min-h-screen overflow-hidden">
+            <ColumnContent items={aboutItems} offset={leftOffset} title="About" />
+            <ColumnContent items={workItems} offset={centerOffset} title="Work" />
+            <ColumnContent items={playgroundItems} offset={rightOffset} title="Playground" />
           </div>
-
-          {/* Center column - Work (fastest) */}
-          <div 
-            className="space-y-8 will-change-transform"
-            style={{ 
-              transform: `translateY(-${centerOffset}px)`,
-              transition: 'none'
-            }}
-          >
-            {duplicatedWork.map((item, index) => (
-              <div 
-                key={index}
-                className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 cursor-pointer min-h-[104px] flex items-center"
-              >
-                <p className="text-sm font-mono leading-relaxed">{item}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Right column - Playground (slower) */}
-          <div 
-            className="space-y-8 will-change-transform"
-            style={{ 
-              transform: `translateY(-${rightOffset}px)`,
-              transition: 'none'
-            }}
-          >
-            {duplicatedPlayground.map((item, index) => (
-              <div 
-                key={index}
-                className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 cursor-pointer min-h-[104px] flex items-center"
-              >
-                <p className="text-sm font-mono leading-relaxed">{item}</p>
-              </div>
-            ))}
+          
+          {/* Second loop (clone) */}
+          <div className="loop grid grid-cols-3 gap-8 px-8 py-16 min-h-screen overflow-hidden">
+            <ColumnContent items={aboutItems} offset={leftOffset} title="About" />
+            <ColumnContent items={workItems} offset={centerOffset} title="Work" />
+            <ColumnContent items={playgroundItems} offset={rightOffset} title="Playground" />
           </div>
         </div>
       </div>
