@@ -107,13 +107,13 @@ const ParallaxColumns = () => {
   const centerOffset = scrollY * 0.8;
   const rightOffset = scrollY * 0.3;
 
-  const BentoCard = ({ item, isWork = false }: { item: any, isWork?: boolean }) => (
+  const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
     <div className="group cursor-pointer">
       <div className="p-6 bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-500 hover:bg-background/60 hover:border-border/40 hover:shadow-2xl hover:shadow-background/10 hover:-translate-y-2 min-h-[200px] flex flex-col justify-between">
         <div>
           <div className="flex items-start justify-between mb-3">
             <h3 className="text-base font-mono font-medium leading-tight group-hover:text-foreground/90 transition-colors">
-              {isWork ? item.title : item}
+              {isWork || isPlayground ? item.title : item}
             </h3>
             {isWork && (
               <span className="text-xs font-mono text-muted-foreground ml-4 shrink-0">
@@ -122,7 +122,7 @@ const ParallaxColumns = () => {
             )}
           </div>
           
-          {isWork && (
+          {(isWork || isPlayground) && (
             <>
               <p className="text-sm font-mono text-muted-foreground mb-3 leading-relaxed">
                 {item.subtitle}
@@ -130,19 +130,8 @@ const ParallaxColumns = () => {
               <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed">
                 {item.description}
               </p>
-            </>
-          )}
-          
-          {!isWork && item.subtitle && (
-            <>
-              <p className="text-sm font-mono text-muted-foreground mb-3 leading-relaxed">
-                {item.subtitle}
-              </p>
-              <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed mb-3">
-                {item.description}
-              </p>
-              {item.tech && (
-                <span className="text-xs font-mono text-muted-foreground/60">
+              {isPlayground && item.tech && (
+                <span className="text-xs font-mono text-muted-foreground/60 mt-3 block">
                   {item.tech}
                 </span>
               )}
@@ -155,7 +144,7 @@ const ParallaxColumns = () => {
     </div>
   );
 
-  const ColumnContent = ({ items, offset, title, isWork = false }: { items: any[], offset: number, title: string, isWork?: boolean }) => (
+  const ColumnContent = ({ items, offset, title, isWork = false, isPlayground = false }: { items: any[], offset: number, title: string, isWork?: boolean, isPlayground?: boolean }) => (
     <div className="w-full">
       <div 
         className="space-y-6 will-change-transform"
@@ -165,7 +154,7 @@ const ParallaxColumns = () => {
         }}
       >
         {items.map((item, index) => (
-          <BentoCard key={index} item={item} isWork={isWork} />
+          <BentoCard key={index} item={item} isWork={isWork} isPlayground={isPlayground} />
         ))}
       </div>
     </div>
@@ -201,7 +190,7 @@ const ParallaxColumns = () => {
         <div className="grid grid-cols-3 gap-8 px-8 py-16 min-h-screen overflow-hidden">
           <ColumnContent items={aboutItems} offset={leftOffset} title="About" />
           <ColumnContent items={workItems} offset={centerOffset} title="Work" isWork={true} />
-          <ColumnContent items={playgroundItems} offset={rightOffset} title="Playground" />
+          <ColumnContent items={playgroundItems} offset={rightOffset} title="Playground" isPlayground={true} />
         </div>
       </div>
     </>
