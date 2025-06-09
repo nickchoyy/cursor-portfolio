@@ -35,18 +35,19 @@ const ParallaxColumns = () => {
     };
   }, [headerAtTop]);
 
-  // Direct progress calculation based on center column only
+  // Progress calculation aligned to parallax section start and end
   useEffect(() => {
-    if (!headerAtTop) {
+    if (!headerAtTop || !containerRef.current) {
       setProgress(0);
       return;
     }
 
     const parallaxScroll = Math.max(0, scrollY - parallaxStartY);
-    const centerOffset = parallaxScroll * 0.2; // Only track center column speed
-    const estimatedTotalHeight = workItems.length * 300;
-    const rawProgress = Math.max(0, Math.min(100, (centerOffset / estimatedTotalHeight) * 100));
+    const containerHeight = containerRef.current.scrollHeight;
+    const viewportHeight = window.innerHeight;
+    const totalScrollableHeight = containerHeight - viewportHeight;
     
+    const rawProgress = Math.max(0, Math.min(100, (parallaxScroll / totalScrollableHeight) * 100));
     setProgress(rawProgress);
   }, [scrollY, headerAtTop, parallaxStartY]);
 
@@ -248,8 +249,8 @@ const ParallaxColumns = () => {
   const rightOffset = parallaxScroll * 0.6;
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
-    <div className={`group cursor-pointer transition-all duration-300 ${isWork || isPlayground ? 'opacity-80 hover:opacity-100' : 'opacity-60 hover:opacity-100'} hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/10`}>
-      <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 group-hover:bg-background/80 group-hover:border-primary/40 group-hover:shadow-xl overflow-hidden">
+    <div className={`group cursor-pointer transition-all duration-300 ${isWork || isPlayground ? 'opacity-80 hover:opacity-100' : 'opacity-60 hover:opacity-100'} hover:scale-[1.02]`}>
+      <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 group-hover:bg-background/80 group-hover:border-primary/20 overflow-hidden">
         {item.image && !item.isProfile && (
           <div className="aspect-[4/3] overflow-hidden">
             <img 
@@ -371,7 +372,7 @@ const ParallaxColumns = () => {
   return (
     <>
       <div ref={containerRef} className="bg-gradient-to-br from-background via-background to-background/95 z-30">
-        {/* Progress bar tracking center column only */}
+        {/* Progress bar aligned to parallax section */}
         <div className="fixed top-0 left-0 right-0 z-50">
           <Progress 
             value={progress} 

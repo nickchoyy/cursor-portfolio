@@ -11,7 +11,7 @@ const DarkModeTransition = () => {
           const target = mutation.target as HTMLElement;
           if (target.classList.contains('dark') || !target.classList.contains('dark')) {
             setIsTransitioning(true);
-            setTimeout(() => setIsTransitioning(false), 100); // Slightly faster blink
+            setTimeout(() => setIsTransitioning(false), 800); // Longer transition for rebuild effect
           }
         }
       });
@@ -29,7 +29,7 @@ const DarkModeTransition = () => {
 
   return (
     <div className="fixed inset-0 z-[9999] pointer-events-none">
-      <div className="absolute inset-0 bg-background animate-[subtle-blink_0.1s_ease-in-out]"></div>
+      <div className="absolute inset-0 bg-background animate-[command-rebuild_0.8s_ease-in-out]"></div>
     </div>
   );
 };
