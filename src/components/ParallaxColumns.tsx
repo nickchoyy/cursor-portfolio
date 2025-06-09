@@ -5,7 +5,6 @@ const ParallaxColumns = () => {
   const [scrollY, setScrollY] = useState(0);
   const [rainbowUnlocked, setRainbowUnlocked] = useState(false);
   const loopHeightRef = useRef(0);
-  const scrollWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -14,41 +13,23 @@ const ParallaxColumns = () => {
   }, []);
 
   useEffect(() => {
-    // Calculate loop height after component mounts
-    const calculateLoopHeight = () => {
-      if (scrollWrapperRef.current) {
-        const firstLoop = scrollWrapperRef.current.querySelector('.loop');
-        if (firstLoop) {
-          loopHeightRef.current = firstLoop.clientHeight;
-        }
-      }
-    };
-
-    calculateLoopHeight();
-    window.addEventListener('resize', calculateLoopHeight);
-    return () => window.removeEventListener('resize', calculateLoopHeight);
+    // Set initial loop height
+    loopHeightRef.current = window.innerHeight * 3; // Approximate height of one loop
   }, []);
 
   useEffect(() => {
     const handleInfiniteScroll = () => {
       const scrollTop = window.scrollY;
       const loopHeight = loopHeightRef.current;
-      const heroHeight = window.innerHeight;
 
-      // Only apply infinite scroll logic when in parallax section
-      if (scrollTop > heroHeight * 0.7 && loopHeight > 0) {
-        const parallaxScrollTop = scrollTop - (heroHeight * 0.7);
-        
-        // When we scroll past one loop, reset to beginning smoothly
-        if (parallaxScrollTop >= loopHeight) {
-          const resetPosition = (heroHeight * 0.7) + (parallaxScrollTop - loopHeight);
-          window.scrollTo(0, resetPosition);
-          setRainbowUnlocked(true);
-        }
+      // Loop logic - when we scroll past one loop, reset to beginning
+      if (scrollTop >= loopHeight && loopHeight > 0) {
+        window.scrollTo(0, scrollTop - loopHeight);
+        setRainbowUnlocked(true);
       }
     };
 
-    window.addEventListener('scroll', handleInfiniteScroll, { passive: true });
+    window.addEventListener('scroll', handleInfiniteScroll);
     return () => window.removeEventListener('scroll', handleInfiniteScroll);
   }, []);
 
@@ -97,72 +78,31 @@ const ParallaxColumns = () => {
   const showParallax = scrollY > window.innerHeight * 0.7;
   
   // Calculate progress within the current loop
-  const heroHeight = window.innerHeight * 0.7;
-  const parallaxScrollTop = Math.max(0, scrollY - heroHeight);
   const loopHeight = loopHeightRef.current;
-  const progress = loopHeight > 0 ? ((parallaxScrollTop % loopHeight) / loopHeight) * 100 : 0;
+  const progress = loopHeight > 0 ? ((scrollY % loopHeight) / loopHeight) * 100 : 0;
 
-  const ColumnContent = ({ items, title }: { items: string[], title: string }) => (
-    <div className="w-full space-y-8">
-      {items.map((item, index) => (
-        <div 
-          key={index}
-          className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 min-h-[104px] flex items-center cursor-pointer"
-        >
-          <p className="text-sm font-mono leading-relaxed">{item}</p>
-        </div>
-      ))}
-    </div>
-  );
+  // Parallax calculations for different column speeds
+  const leftOffset = scrollY * 0.3;
+  const centerOffset = scrollY * 0.8;
+  const rightOffset = scrollY * 0.3;
 
-  const LoopSection = () => (
-    <div className="loop min-h-screen">
-      {/* Welcome Section */}
-      <div className="h-screen flex items-center justify-center bg-background border-b border-border">
-        <div className="grid grid-cols-3 gap-8 px-8 w-full max-w-7xl">
-          <div className="text-center">
-            <h2 className="text-2xl font-mono font-medium mb-8">About</h2>
-            <ColumnContent items={aboutItems.slice(0, 3)} title="About" />
+  const ColumnContent = ({ items, offset, title }: { items: string[], offset: number, title: string }) => (
+    <div className="w-full">
+      <div 
+        className="space-y-8 will-change-transform"
+        style={{ 
+          transform: `translateY(-${offset}px)`,
+          transition: 'none'
+        }}
+      >
+        {[...items, ...items, ...items, ...items].map((item, index) => (
+          <div 
+            key={index}
+            className="p-6 border border-border transition-all duration-300 hover:border-foreground/30 min-h-[104px] flex items-center cursor-pointer"
+          >
+            <p className="text-sm font-mono leading-relaxed">{item}</p>
           </div>
-          <div className="text-center">
-            <h2 className="text-2xl font-mono font-medium mb-8">Work</h2>
-            <ColumnContent items={workItems.slice(0, 3)} title="Work" />
-          </div>
-          <div className="text-center">
-            <h2 className="text-2xl font-mono font-medium mb-8">Playground</h2>
-            <ColumnContent items={playgroundItems.slice(0, 3)} title="Playground" />
-          </div>
-        </div>
-      </div>
-
-      {/* Scroll More Section */}
-      <div className="h-screen flex items-center justify-center bg-background border-b border-border">
-        <div className="grid grid-cols-3 gap-8 px-8 w-full max-w-7xl">
-          <div className="text-center">
-            <ColumnContent items={aboutItems.slice(3, 6)} title="About" />
-          </div>
-          <div className="text-center">
-            <ColumnContent items={workItems.slice(3, 6)} title="Work" />
-          </div>
-          <div className="text-center">
-            <ColumnContent items={playgroundItems.slice(3, 6)} title="Playground" />
-          </div>
-        </div>
-      </div>
-
-      {/* You Made It Section */}
-      <div className="h-screen flex items-center justify-center bg-background border-b border-border">
-        <div className="grid grid-cols-3 gap-8 px-8 w-full max-w-7xl">
-          <div className="text-center">
-            <ColumnContent items={aboutItems.slice(6)} title="About" />
-          </div>
-          <div className="text-center">
-            <ColumnContent items={workItems.slice(6)} title="Work" />
-          </div>
-          <div className="text-center">
-            <ColumnContent items={playgroundItems.slice(6)} title="Playground" />
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
@@ -171,9 +111,9 @@ const ParallaxColumns = () => {
     <>
       {/* Progress bar - only show when parallax is active */}
       {showParallax && (
-        <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-muted">
+        <div className="fixed top-0 left-0 right-0 z-50 h-1">
           <div 
-            className={`h-full transition-all duration-200 ease-out ${
+            className={`h-full transition-all duration-200 ${
               rainbowUnlocked 
                 ? 'bg-gradient-to-r from-red-500 via-orange-500 via-yellow-500 via-green-500 via-blue-500 via-indigo-500 to-violet-500' 
                 : 'bg-foreground'
@@ -189,18 +129,38 @@ const ParallaxColumns = () => {
           showParallax ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
-        {/* Infinite scrolling content */}
-        <div ref={scrollWrapperRef} className="scroll-wrapper h-full overflow-hidden">
+        {/* Sticky header */}
+        <div className="sticky top-1 bg-background border-b border-border z-40 backdrop-blur-sm">
+          <div className="grid grid-cols-3 gap-8 px-8 py-6">
+            <div className="text-center">
+              <h2 className="text-lg font-mono font-medium">About</h2>
+            </div>
+            <div className="text-center">
+              <h2 className="text-lg font-mono font-medium">Work</h2>
+            </div>
+            <div className="text-center">
+              <h2 className="text-lg font-mono font-medium">Playground</h2>
+            </div>
+          </div>
+        </div>
+
+        {/* Infinite scrolling parallax content */}
+        <div className="scroll-wrapper">
           {/* First loop */}
-          <LoopSection />
+          <div className="loop grid grid-cols-3 gap-8 px-8 py-16 min-h-screen overflow-hidden">
+            <ColumnContent items={aboutItems} offset={leftOffset} title="About" />
+            <ColumnContent items={workItems} offset={centerOffset} title="Work" />
+            <ColumnContent items={playgroundItems} offset={rightOffset} title="Playground" />
+          </div>
           
-          {/* Second loop (identical copy) */}
-          <LoopSection />
+          {/* Second loop (clone) */}
+          <div className="loop grid grid-cols-3 gap-8 px-8 py-16 min-h-screen overflow-hidden">
+            <ColumnContent items={aboutItems} offset={leftOffset} title="About" />
+            <ColumnContent items={workItems} offset={centerOffset} title="Work" />
+            <ColumnContent items={playgroundItems} offset={rightOffset} title="Playground" />
+          </div>
         </div>
       </div>
-
-      {/* Extended height for scrolling */}
-      <div className="h-[800vh]"></div>
     </>
   );
 };
