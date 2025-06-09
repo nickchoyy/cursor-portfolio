@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 
 const AsciiSky = () => {
@@ -92,8 +91,8 @@ const AsciiSky = () => {
       lastTime = time;
       rotation += 0.0005 * deltaTime;
 
-      // Move center along x-axis (looping back)
-      const centerX = (time * 0.1) % (width + 200) - 100;
+      // Keep center fixed in the middle of canvas
+      const centerX = width / 2;
       const centerY = height / 2;
 
       const sunRadius = Math.min(width, height) * 0.15;
@@ -116,7 +115,7 @@ const AsciiSky = () => {
       ctx.font = "16px monospace";
       ctx.fillText("O", centerX - 8, centerY + 6);
 
-      // Rotating rays
+      // Rotating rays - more visible and properly around sun
       const rayCount = 24;
       const maxRayLength = Math.min(width, height) * 0.4;
 
@@ -175,7 +174,7 @@ const AsciiSky = () => {
 
       ctx.globalAlpha = 1;
 
-      // Draw cratered moon in rings
+      // Draw crescent moon shape
       for (let r = moonRadius; r > 0; r -= 12) {
         const circumference = 2 * Math.PI * r;
         const charCount = Math.floor(circumference / 8);
@@ -186,15 +185,23 @@ const AsciiSky = () => {
           const angle = (i / charCount) * 2 * Math.PI;
           const dx = Math.cos(angle + t * 0.1) * r;
           const dy = Math.sin(angle + t * 0.1) * r;
-          ctx.fillText(char, centerX + dx - 6, centerY + dy + 4);
+          
+          // Create crescent by only drawing part of the circle
+          const normalizedAngle = (angle + t * 0.1) % (2 * Math.PI);
+          if (normalizedAngle > Math.PI * 0.3 && normalizedAngle < Math.PI * 1.7) {
+            ctx.fillText(char, centerX + dx - 6, centerY + dy + 4);
+          }
         }
       }
 
-      // Draw moon core
+      // Draw crescent core (partial)
       ctx.font = "16px monospace";
-      ctx.fillText("O", centerX - 8, centerY + 6);
+      const coreAngle = t * 0.1;
+      if ((coreAngle % (2 * Math.PI)) > Math.PI * 0.3 && (coreAngle % (2 * Math.PI)) < Math.PI * 1.7) {
+        ctx.fillText("O", centerX - 8, centerY + 6);
+      }
 
-      // Add crater dots
+      // Add crater dots only on visible part of crescent
       const craterCount = 40;
       ctx.font = "12px monospace";
       for (let i = 0; i < craterCount; i++) {
@@ -202,8 +209,13 @@ const AsciiSky = () => {
         const radius = Math.random() * moonRadius * 0.8;
         const x = centerX + Math.cos(angle) * radius;
         const y = centerY + Math.sin(angle) * radius;
-        ctx.globalAlpha = 0.2 + Math.random() * 0.2;
-        ctx.fillText(".", x - 3, y + 3);
+        
+        // Only show craters on visible part
+        const normalizedAngle = angle % (2 * Math.PI);
+        if (normalizedAngle > Math.PI * 0.3 && normalizedAngle < Math.PI * 1.7) {
+          ctx.globalAlpha = 0.2 + Math.random() * 0.2;
+          ctx.fillText(".", x - 3, y + 3);
+        }
       }
       ctx.globalAlpha = 1;
     };
