@@ -299,12 +299,10 @@ const ParallaxColumns = () => {
   const baseScrollThreshold = 200;
   const adjustedScrollY = Math.max(0, animatedScrollY - baseScrollThreshold);
   
-  // Enhanced velocity-based parallax with momentum
-  const combinedVelocity = velocity + momentum;
-  const velocityDamping = Math.min(Math.abs(combinedVelocity) / 200, 0.5);
-  const leftOffset = adjustedScrollY * (0.2 + velocityDamping);
-  const centerOffset = adjustedScrollY * (0.65 + velocityDamping * 0.3); // Increased center speed
-  const rightOffset = adjustedScrollY * (0.2 + velocityDamping);
+  // Simplified parallax with middle column slightly faster
+  const leftOffset = adjustedScrollY * 0.3;
+  const centerOffset = adjustedScrollY * 0.4; // Slightly faster than outer columns
+  const rightOffset = adjustedScrollY * 0.3;
 
   // Calculate progress based on total content height - complete when last project is visible
   const totalContentHeight = Math.max(workItems.length, playgroundItems.length) * 400; // Approximate item height
@@ -313,7 +311,7 @@ const ParallaxColumns = () => {
   const progressValue = Math.min(100, Math.max(0, rawProgress));
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
-    <div className={`group cursor-pointer transition-opacity duration-300 ${isWork || isPlayground ? 'opacity-90 hover:opacity-100' : 'opacity-70 hover:opacity-100'}`}>
+    <div className={`group cursor-pointer transition-opacity duration-300 ${isWork || isPlayground ? 'opacity-80 hover:opacity-100' : 'opacity-60 hover:opacity-100'}`}>
       <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 hover:bg-background/60 hover:border-border/40 overflow-hidden">
         {item.image && !item.isProfile && (
           <div className="aspect-[4/3] overflow-hidden">
@@ -377,7 +375,7 @@ const ParallaxColumns = () => {
   const AboutSection = ({ items, offset }: { items: any[], offset: number }) => (
     <div className="w-full">
       <div 
-        className="group cursor-pointer opacity-70 hover:opacity-100 transition-opacity duration-300 will-change-transform"
+        className="group cursor-pointer opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-transform"
         style={{ 
           transform: `translateY(-${offset}px)`,
           transition: 'opacity 0.3s ease'
