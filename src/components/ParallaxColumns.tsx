@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { Progress } from './ui/progress';
 
@@ -305,14 +306,14 @@ const ParallaxColumns = () => {
   const centerOffset = adjustedScrollY * 0.6; // Much faster than outer columns
   const rightOffset = adjustedScrollY * 0.25;
 
-  // Fixed progress calculation - tracks progress through the actual parallax section
+  // Progress calculation based on rightmost (playground) column only
   const parallaxSectionStart = baseScrollThreshold;
   const estimatedItemHeight = 350;
-  const maxItems = Math.max(workItems.length, playgroundItems.length);
-  const totalParallaxHeight = maxItems * estimatedItemHeight + 800; // Add buffer for spacing
+  const playgroundItemsCount = playgroundItems.length;
+  const totalPlaygroundHeight = playgroundItemsCount * estimatedItemHeight + 800; // Add buffer for spacing
   
   const parallaxProgress = Math.max(0, animatedScrollY - parallaxSectionStart);
-  const rawProgress = (parallaxProgress / totalParallaxHeight) * 100;
+  const rawProgress = (parallaxProgress / totalPlaygroundHeight) * 100;
   const progressValue = Math.min(100, Math.max(0, rawProgress));
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
