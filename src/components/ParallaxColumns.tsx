@@ -97,7 +97,7 @@ const ParallaxColumns = () => {
   const rightOffset = adjustedScrollY * 0.2;
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
-    <div className="group cursor-pointer opacity-70 hover:opacity-100 transition-opacity duration-300">
+    <div className={`group cursor-pointer transition-opacity duration-300 ${isWork || isPlayground ? 'opacity-85 hover:opacity-100' : 'opacity-70 hover:opacity-100'}`}>
       <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 hover:bg-background/60 hover:border-border/40 overflow-hidden">
         {item.image && !item.isProfile && (
           <div className="aspect-[4/3] overflow-hidden">
@@ -105,6 +105,8 @@ const ParallaxColumns = () => {
               src={item.image} 
               alt={item.title}
               className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         )}
@@ -115,6 +117,9 @@ const ParallaxColumns = () => {
               src={item.image} 
               alt={item.title}
               className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+              loading="eager"
+              decoding="async"
+              style={{ imageRendering: 'auto' }}
             />
           </div>
         )}
@@ -148,6 +153,51 @@ const ParallaxColumns = () => {
           )}
           
           <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-border/80 transition-colors"></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const AboutSection = ({ items, offset }: { items: any[], offset: number }) => (
+    <div className="w-full">
+      <div 
+        className="group cursor-pointer opacity-70 hover:opacity-100 transition-opacity duration-300 will-change-transform"
+        style={{ 
+          transform: `translateY(-${offset}px)`,
+          transition: 'opacity 0.3s ease, transform none'
+        }}
+      >
+        <div className="space-y-4">
+          {items.map((item, index) => (
+            <div key={index} className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 group-hover:bg-background/60 group-hover:border-border/40 overflow-hidden">
+              {item.isProfile && (
+                <div className="aspect-square overflow-hidden">
+                  <img 
+                    src={item.image} 
+                    alt={item.title}
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                    loading="eager"
+                    decoding="async"
+                    style={{ imageRendering: 'auto' }}
+                  />
+                </div>
+              )}
+              
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-foreground/90 transition-colors">
+                    {item.title}
+                  </h3>
+                </div>
+                
+                <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed">
+                  {item.description}
+                </p>
+                
+                <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-border/80 transition-colors"></div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -190,7 +240,7 @@ const ParallaxColumns = () => {
         </div>
 
         <div className="grid grid-cols-3 gap-2 px-6 py-8 min-h-screen overflow-hidden">
-          <ColumnContent items={aboutItems} offset={leftOffset} title="About" />
+          <AboutSection items={aboutItems} offset={leftOffset} />
           <ColumnContent items={workItems} offset={centerOffset} title="Work" isWork={true} />
           <ColumnContent items={playgroundItems} offset={rightOffset} title="Playground" isPlayground={true} />
         </div>
