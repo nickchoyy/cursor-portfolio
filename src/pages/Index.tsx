@@ -3,6 +3,7 @@ import ContactInfo from '../components/ContactInfo';
 import ExperienceList from '../components/ExperienceList';
 import HeroCenter from '../components/HeroCenter';
 import ParallaxColumns from '../components/ParallaxColumns';
+import Footer from '../components/Footer';
 
 const Index = () => {
   return (
@@ -17,8 +18,11 @@ const Index = () => {
       {/* Parallax Columns Section - takes over when scrolled to */}
       <ParallaxColumns />
       
-      {/* Additional height to enable infinite scrolling */}
-      <div className="h-[500vh]"></div>
+      {/* Additional height for scrolling content */}
+      <div className="h-[300vh]"></div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
