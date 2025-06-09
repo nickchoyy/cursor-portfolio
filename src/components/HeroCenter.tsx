@@ -9,6 +9,7 @@ const HeroCenter = () => {
   // Listen for theme changes
   useEffect(() => {
     const handleThemeChange = (event: CustomEvent) => {
+      console.log('HeroCenter received theme change:', event.detail);
       setThemeChangeCount(event.detail);
     };
 

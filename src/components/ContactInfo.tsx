@@ -9,6 +9,7 @@ const ContactInfo = () => {
   // Listen for theme changes
   useEffect(() => {
     const handleThemeChange = (event: CustomEvent) => {
+      console.log('ContactInfo received theme change:', event.detail);
       setThemeChangeCount(event.detail);
     };
 

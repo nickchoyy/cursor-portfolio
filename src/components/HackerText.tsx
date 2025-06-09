@@ -5,17 +5,18 @@ const SYMBOLS = "!@#$%^&*()_+=<>?/|~".split("");
 
 interface HackerTextProps {
   text: string;
-  trigger: boolean; // changes when theme changes
+  trigger: boolean;
   className?: string;
 }
 
 const HackerText = ({ text, trigger, className }: HackerTextProps) => {
   const [display, setDisplay] = useState(text);
-  const [phase, setPhase] = useState<"idle" | "scramble" | "resolve">("idle");
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
-    if (!trigger) return;
+    if (!trigger || isAnimating) return;
 
+    setIsAnimating(true);
     let frame = 0;
     let scrambleInterval: NodeJS.Timeout;
     let resolveInterval: NodeJS.Timeout;
@@ -24,16 +25,15 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
       scrambleInterval = setInterval(() => {
         const scrambled = text
           .split("")
-          .map((char, i) => (Math.random() < 0.6 ? SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)] : char))
+          .map((char, i) => (Math.random() < 0.7 ? SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)] : char))
           .join("");
         setDisplay(scrambled);
         frame++;
-        if (frame > 10) {
+        if (frame > 6) { // Reduced from 10 to 6 for faster effect
           clearInterval(scrambleInterval);
-          setPhase("resolve");
           resolve();
         }
-      }, 40);
+      }, 25); // Reduced from 40 to 25 for faster scrambling
     };
 
     const resolve = () => {
@@ -51,19 +51,19 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
         if (i >= text.length) {
           clearInterval(resolveInterval);
           setDisplay(text);
-          setPhase("idle");
+          setIsAnimating(false);
         }
-      }, 30);
+      }, 20); // Reduced from 30 to 20 for faster resolving
     };
 
-    setPhase("scramble");
     scramble();
 
     return () => {
       clearInterval(scrambleInterval);
       clearInterval(resolveInterval);
+      setIsAnimating(false);
     };
-  }, [trigger, text]);
+  }, [trigger, text, isAnimating]);
 
   return (
     <span className={className}>

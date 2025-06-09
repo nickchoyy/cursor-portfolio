@@ -9,10 +9,13 @@ const DarkModeTransition = () => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
           const target = mutation.target as HTMLElement;
-          if (target.classList.contains('dark') || !target.classList.contains('dark')) {
-            // Increment counter to trigger text scrambling
-            setThemeChangeCount(prev => prev + 1);
-            console.log('Theme change detected, count:', themeChangeCount + 1);
+          // More reliable detection - increment on any class change to html element
+          if (target === document.documentElement) {
+            setThemeChangeCount(prev => {
+              const newCount = prev + 1;
+              console.log('Theme change detected, count:', newCount);
+              return newCount;
+            });
           }
         }
       });
@@ -24,14 +27,16 @@ const DarkModeTransition = () => {
     });
 
     return () => observer.disconnect();
-  }, [themeChangeCount]);
+  }, []);
 
-  // Store the theme change count in a global variable so other components can access it
+  // Store the theme change count in a global variable and dispatch event
   useEffect(() => {
     (window as any).themeChangeCount = themeChangeCount;
-    // Dispatch custom event for components to listen to
-    window.dispatchEvent(new CustomEvent('themeChange', { detail: themeChangeCount }));
-    console.log('Dispatching themeChange event with count:', themeChangeCount);
+    // Always dispatch event when count changes
+    if (themeChangeCount > 0) {
+      window.dispatchEvent(new CustomEvent('themeChange', { detail: themeChangeCount }));
+      console.log('Dispatching themeChange event with count:', themeChangeCount);
+    }
   }, [themeChangeCount]);
 
   return null;
