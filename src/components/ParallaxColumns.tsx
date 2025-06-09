@@ -3,12 +3,14 @@ import { Progress } from './ui/progress';
 
 const ParallaxColumns = () => {
   const [scrollY, setScrollY] = useState(0);
+  const [animatedScrollY, setAnimatedScrollY] = useState(0);
   const [velocity, setVelocity] = useState(0);
   const [momentum, setMomentum] = useState(0);
   const lastScrollY = useRef(0);
   const lastTimestamp = useRef(0);
   const rafId = useRef<number>();
   const momentumRafId = useRef<number>();
+  const animationLoopId = useRef<number>();
   const isScrolling = useRef(false);
   const scrollTimeout = useRef<NodeJS.Timeout>();
 
@@ -68,10 +70,20 @@ const ParallaxColumns = () => {
       animateMomentum();
     };
 
+    const animateScroll = () => {
+      // Interpolate scrollY → animatedScrollY
+      const diff = scrollY - animatedScrollY;
+      const lerped = animatedScrollY + diff * 0.1;
+      setAnimatedScrollY(lerped);
+
+      animationLoopId.current = requestAnimationFrame(animateScroll);
+    };
+
     // Add smooth scroll behavior to html
     document.documentElement.style.scrollBehavior = 'auto'; // Changed from 'smooth' for better physics
     
     window.addEventListener('scroll', handleScroll, { passive: true });
+    animateScroll();
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -81,12 +93,15 @@ const ParallaxColumns = () => {
       if (momentumRafId.current) {
         cancelAnimationFrame(momentumRafId.current);
       }
+      if (animationLoopId.current) {
+        cancelAnimationFrame(animationLoopId.current);
+      }
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
       }
       document.documentElement.style.scrollBehavior = '';
     };
-  }, [velocity]);
+  }, [velocity, scrollY, animatedScrollY]);
 
   const aboutItems = [
     {
@@ -280,13 +295,13 @@ const ParallaxColumns = () => {
   ];
 
   const baseScrollThreshold = 200;
-  const adjustedScrollY = Math.max(0, scrollY - baseScrollThreshold);
+  const adjustedScrollY = Math.max(0, animatedScrollY - baseScrollThreshold);
   
   // Enhanced velocity-based parallax with momentum
   const combinedVelocity = velocity + momentum;
   const velocityDamping = Math.min(Math.abs(combinedVelocity) / 200, 0.5);
   const leftOffset = adjustedScrollY * (0.2 + velocityDamping);
-  const centerOffset = adjustedScrollY * (0.5 + velocityDamping * 0.3);
+  const centerOffset = adjustedScrollY * (0.65 + velocityDamping * 0.3); // Increased center speed
   const rightOffset = adjustedScrollY * (0.2 + velocityDamping);
 
   // Calculate progress based on total content height - complete when last project is visible
