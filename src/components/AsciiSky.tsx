@@ -52,7 +52,7 @@ const AsciiSky = () => {
 
     let animationFrameId: number;
     let startTime: number | null = null;
-    const rotationPeriod = 30000; // Slower rotation - 30 seconds for a full rotation
+    const rotationPeriod = 20000; // Slower rotation - 20 seconds for a full rotation
 
     // Star variables for moon
     const starChars = [".", "+", "*", "·"];
@@ -114,7 +114,7 @@ const AsciiSky = () => {
       const rayChars = ["|", "/", "-", "\\"];
 
       // Draw sun core with separate rotation - smaller size
-      const sunRadius = Math.min(canvas.width, canvas.height) * 0.08; // Reduced from 0.12
+      const sunRadius = Math.min(canvas.width, canvas.height) * 0.12; // Reduced from 0.15
 
       // Draw concentric rings for sun core with core rotation
       for (let r = 0; r < sunRadius; r += 16) {
@@ -138,7 +138,7 @@ const AsciiSky = () => {
 
       // Draw rotating rays with balanced opacity - smaller rays
       const rayCount = 24;
-      const maxRayLength = Math.min(canvas.width, canvas.height) * 0.25; // Reduced from 0.35
+      const maxRayLength = Math.min(canvas.width, canvas.height) * 0.35; // Reduced from 0.4
 
       ctx.font = "16px monospace";
 
@@ -165,11 +165,11 @@ const AsciiSky = () => {
       ctx.globalAlpha = 1;
 
       // Add dithering around sun for glow effect - smaller glow
-      const ditherCount = 200; // Reduced from 250
+      const ditherCount = 250; // Reduced from 300
       for (let i = 0; i < ditherCount; i++) {
         const angle = Math.random() * 2 * Math.PI;
-        const distance = sunRadius + Math.random() * (maxRayLength * 0.4); // Reduced glow area
-        ctx.globalAlpha = 0.3 * (1 - (distance - sunRadius) / (maxRayLength * 0.4));
+        const distance = sunRadius + Math.random() * (maxRayLength * 0.5); // Reduced glow area
+        ctx.globalAlpha = 0.3 * (1 - (distance - sunRadius) / (maxRayLength * 0.5));
         const ditherChar = Math.random() > 0.5 ? "." : ",";
         drawCharAtPolar(ditherChar, angle, distance, centerX, centerY);
       }
@@ -205,7 +205,7 @@ const AsciiSky = () => {
 
       ctx.globalAlpha = 1;
 
-      // Draw 3D ring around moon (Saturn-like) - positioned at moon center
+      // Draw 3D ring around moon (Saturn-like)
       const ringInnerRadius = moonRadius * 1.3;
       const ringOuterRadius = moonRadius * 1.8;
       const ringTilt = Math.PI / 6; // 30 degree tilt
@@ -214,18 +214,17 @@ const AsciiSky = () => {
       ctx.font = "12px monospace";
       ctx.fillStyle = "#999999";
       
-      // Draw ring segments with 3D perspective, centered on moon
+      // Draw ring segments with 3D perspective
       for (let angle = 0; angle < 2 * Math.PI; angle += 0.1) {
         const rotatedAngle = angle + ringRotationAngle;
         
-        // Calculate 3D position with tilt, centered on moon
+        // Calculate 3D position with tilt
         const x3d = Math.cos(rotatedAngle);
         const y3d = Math.sin(rotatedAngle) * Math.cos(ringTilt);
         const z3d = Math.sin(rotatedAngle) * Math.sin(ringTilt);
         
         // Only draw visible parts (front half)
         if (z3d > -0.3) {
-          // Center the ring around the moon center
           const innerX = centerX + x3d * ringInnerRadius;
           const innerY = centerY + y3d * ringInnerRadius;
           const outerX = centerX + x3d * ringOuterRadius;
