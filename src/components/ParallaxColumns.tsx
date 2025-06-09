@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { Progress } from './ui/progress';
 
@@ -9,6 +8,7 @@ const ParallaxColumns = () => {
   const [headerAtTop, setHeaderAtTop] = useState(false);
   const [parallaxStartY, setParallaxStartY] = useState(0);
   const [animatedParallaxScroll, setAnimatedParallaxScroll] = useState(0);
+  const [animatedProgress, setAnimatedProgress] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,6 +42,15 @@ const ParallaxColumns = () => {
     const animate = () => {
       const target = headerAtTop ? Math.max(0, scrollY - parallaxStartY) : 0;
       setAnimatedParallaxScroll((prev) => prev + (target - prev) * 0.1); // LERP
+      
+      // Calculate progress more smoothly
+      const maxScrollDistance = 3000; // Estimated total scrollable distance for the parallax section
+      const progressTarget = headerAtTop && target > 0
+        ? Math.min(100, Math.max(0, (target / maxScrollDistance) * 100))
+        : 0;
+      
+      setAnimatedProgress((prev) => prev + (progressTarget - prev) * 0.08); // Smoother LERP for progress
+      
       animationId = requestAnimationFrame(animate);
     };
 
@@ -389,7 +398,7 @@ const ParallaxColumns = () => {
         {/* Progress bar */}
         <div className="fixed top-0 left-0 right-0 z-50">
           <Progress 
-            value={progressValue} 
+            value={animatedProgress} 
             className="h-1 rounded-none bg-background/20" 
           />
         </div>
