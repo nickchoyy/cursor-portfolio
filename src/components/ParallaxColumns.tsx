@@ -72,9 +72,11 @@ const ParallaxColumns = () => {
 
     const animateScroll = () => {
       // Interpolate scrollY → animatedScrollY
-      const diff = scrollY - animatedScrollY;
-      const lerped = animatedScrollY + diff * 0.1;
-      setAnimatedScrollY(lerped);
+      setAnimatedScrollY(prev => {
+        const current = scrollY;
+        const diff = current - prev;
+        return prev + diff * 0.1;
+      });
 
       animationLoopId.current = requestAnimationFrame(animateScroll);
     };
@@ -101,7 +103,7 @@ const ParallaxColumns = () => {
       }
       document.documentElement.style.scrollBehavior = '';
     };
-  }, [velocity, scrollY, animatedScrollY]);
+  }, []); // Empty dependency array to prevent re-running
 
   const aboutItems = [
     {
