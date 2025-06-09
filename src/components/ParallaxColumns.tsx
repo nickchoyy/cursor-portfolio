@@ -96,8 +96,8 @@ const ParallaxColumns = () => {
   const rightOffset = adjustedScrollY * 0.2;
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
-    <div className="group cursor-pointer opacity-30 hover:opacity-100 transition-opacity duration-300">
-      <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-500 hover:bg-background/60 hover:border-border/40 hover:shadow-2xl hover:shadow-background/10 hover:-translate-y-2 overflow-hidden">
+    <div className="group cursor-pointer opacity-30 hover:opacity-100 transition-opacity duration-300 light-halo">
+      <div className="reflection-effect glow-effect transition-all duration-500 hover:bg-background/60 hover:border-border/40 hover:shadow-2xl hover:shadow-background/10 hover:-translate-y-2 overflow-hidden">
         {item.image && !item.isProfile && (
           <div className="aspect-[4/3] overflow-hidden">
             <img 
