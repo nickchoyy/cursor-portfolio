@@ -10,6 +10,8 @@ const ParallaxColumns = () => {
   const [parallaxStartY, setParallaxStartY] = useState(0);
   const [progress, setProgress] = useState(0);
   const [themeChangeCount, setThemeChangeCount] = useState(0);
+  const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   // Listen for theme changes
   useEffect(() => {
@@ -26,12 +28,10 @@ const ParallaxColumns = () => {
       const currentScrollY = window.scrollY;
       setScrollY(currentScrollY);
       
-      // Check if header is at top of viewport
       if (headerRef.current) {
         const headerRect = headerRef.current.getBoundingClientRect();
         const isAtTop = headerRect.top <= 0;
         
-        // Capture the scroll position when header first reaches top
         if (isAtTop && !headerAtTop) {
           setParallaxStartY(currentScrollY);
         }
@@ -47,7 +47,7 @@ const ParallaxColumns = () => {
     };
   }, [headerAtTop]);
 
-  // Progress calculation aligned to parallax section start and end
+  // Progress calculation
   useEffect(() => {
     if (!headerAtTop || !containerRef.current) {
       setProgress(0);
@@ -62,6 +62,30 @@ const ParallaxColumns = () => {
     const rawProgress = Math.max(0, Math.min(100, (parallaxScroll / totalScrollableHeight) * 100));
     setProgress(rawProgress);
   }, [scrollY, headerAtTop, parallaxStartY]);
+
+  // Intersection Observer for scroll highlighting
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const newVisibleItems = new Set<string>();
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            newVisibleItems.add(entry.target.id);
+          }
+        });
+        setVisibleItems(newVisibleItems);
+      },
+      {
+        threshold: [0.3, 0.7],
+        rootMargin: '-20% 0px -20% 0px'
+      }
+    );
+
+    const cards = document.querySelectorAll('[data-card-id]');
+    cards.forEach((card) => observer.observe(card));
+
+    return () => observer.disconnect();
+  }, []);
 
   const aboutItems = [
     {
@@ -254,114 +278,154 @@ const ParallaxColumns = () => {
     }
   ];
 
-  // Direct parallax offsets without physics
+  // Smooth parallax offsets without physics
   const parallaxScroll = headerAtTop ? Math.max(0, scrollY - parallaxStartY) : 0;
-  const leftOffset = parallaxScroll * 0.6;
-  const centerOffset = parallaxScroll * 0.2;
-  const rightOffset = parallaxScroll * 0.6;
+  const leftOffset = parallaxScroll * 0.3;
+  const centerOffset = parallaxScroll * 0.1;
+  const rightOffset = parallaxScroll * 0.3;
 
-  const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
-    <div className={`group cursor-pointer transition-all duration-300 ${isWork || isPlayground ? 'opacity-80 hover:opacity-100' : 'opacity-60 hover:opacity-100'} hover:scale-[1.02]`}>
-      <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 group-hover:bg-background/80 group-hover:border-primary/20 overflow-hidden">
-        {item.image && !item.isProfile && (
-          <div className="aspect-[4/3] overflow-hidden">
-            <img 
-              src={item.image} 
-              alt={item.title}
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-        )}
-        
-        {item.isProfile && (
-          <div className="aspect-square overflow-hidden">
-            <img 
-              src={item.image} 
-              alt={item.title}
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105"
-              loading="eager"
-              decoding="async"
-              style={{ imageRendering: 'auto' }}
-            />
-          </div>
-        )}
-        
-        <div className="p-6">
-          <div className="flex items-start justify-between mb-3">
-            <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-primary transition-colors duration-300">
-              <HackerText text={item.title} trigger={themeChangeCount} />
-            </h3>
-            {isWork && (
-              <span className="text-xs font-mono text-muted-foreground ml-4 shrink-0 group-hover:text-primary/70 transition-colors duration-300">
-                <HackerText text={item.year} trigger={themeChangeCount} />
+  const BentoCard = ({ item, isWork = false, isPlayground = false, cardId }: { item: any, isWork?: boolean, isPlayground?: boolean, cardId: string }) => {
+    const isHighlighted = hoveredItem === cardId || (hoveredItem === null && visibleItems.has(cardId));
+    
+    return (
+      <div 
+        id={cardId}
+        data-card-id={cardId}
+        className={`cursor-pointer transition-all duration-300 ${
+          isHighlighted 
+            ? 'opacity-100 brightness-110' 
+            : isWork || isPlayground 
+              ? 'opacity-70' 
+              : 'opacity-50'
+        }`}
+        onMouseEnter={() => setHoveredItem(cardId)}
+        onMouseLeave={() => setHoveredItem(null)}
+      >
+        <div className={`bg-background/40 backdrop-blur-md transition-all duration-300 overflow-hidden ${
+          isHighlighted 
+            ? 'bg-background/80 shadow-lg' 
+            : ''
+        }`}>
+          {item.image && !item.isProfile && (
+            <div className="aspect-[4/3] overflow-hidden">
+              <img 
+                src={item.image} 
+                alt={item.title}
+                className="w-full h-full object-cover opacity-80 transition-all duration-300"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          )}
+          
+          {item.isProfile && (
+            <div className="aspect-square overflow-hidden">
+              <img 
+                src={item.image} 
+                alt={item.title}
+                className="w-full h-full object-cover opacity-80 transition-all duration-300"
+                loading="eager"
+                decoding="async"
+                style={{ imageRendering: 'auto' }}
+              />
+            </div>
+          )}
+          
+          <div className="p-6">
+            <div className="flex items-start justify-between mb-3">
+              <h3 className="text-xs font-mono font-medium leading-tight transition-colors duration-300">
+                <HackerText text={item.title} trigger={themeChangeCount} />
+              </h3>
+              {isWork && (
+                <span className="text-xs font-mono text-muted-foreground ml-4 shrink-0 transition-colors duration-300">
+                  <HackerText text={item.year} trigger={themeChangeCount} />
+                </span>
+              )}
+            </div>
+            
+            {(isWork || isPlayground) && item.subtitle && (
+              <p className="text-xs font-mono text-muted-foreground mb-3 leading-relaxed transition-colors duration-300">
+                <HackerText text={item.subtitle} trigger={themeChangeCount} />
+              </p>
+            )}
+            
+            <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed transition-colors duration-300">
+              <HackerText text={item.description} trigger={themeChangeCount} />
+            </p>
+            
+            {isPlayground && item.tech && (
+              <span className="text-xs font-mono text-muted-foreground/60 mt-3 block transition-colors duration-300">
+                <HackerText text={item.tech} trigger={themeChangeCount} />
               </span>
             )}
+            
+            <div className={`mt-4 h-px bg-gradient-to-r from-border/40 to-transparent transition-all duration-300 ${
+              isHighlighted ? 'w-12 from-primary/60' : 'w-6'
+            }`}></div>
           </div>
-          
-          {(isWork || isPlayground) && item.subtitle && (
-            <p className="text-xs font-mono text-muted-foreground mb-3 leading-relaxed group-hover:text-foreground/80 transition-colors duration-300">
-              <HackerText text={item.subtitle} trigger={themeChangeCount} />
-            </p>
-          )}
-          
-          <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed group-hover:text-foreground/90 transition-colors duration-300">
-            <HackerText text={item.description} trigger={themeChangeCount} />
-          </p>
-          
-          {isPlayground && item.tech && (
-            <span className="text-xs font-mono text-muted-foreground/60 mt-3 block group-hover:text-primary/60 transition-colors duration-300">
-              <HackerText text={item.tech} trigger={themeChangeCount} />
-            </span>
-          )}
-          
-          <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-primary/60 group-hover:w-12 transition-all duration-300"></div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const AboutSection = ({ items, offset }: { items: any[], offset: number }) => (
     <div className="w-full">
       <div 
-        className="group cursor-pointer opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-[1.01]"
+        className="space-y-4"
         style={{ 
           transform: `translateY(-${offset}px)`
         }}
       >
-        <div className="space-y-4">
-          {items.map((item, index) => (
-            <div key={index} className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 group-hover:bg-background/80 group-hover:border-primary/40 group-hover:shadow-xl overflow-hidden">
-              {item.isProfile && (
-                <div className="aspect-square overflow-hidden">
-                  <img 
-                    src={item.image} 
-                    alt={item.title}
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105"
-                    loading="eager"
-                    decoding="async"
-                    style={{ imageRendering: 'auto' }}
-                  />
-                </div>
-              )}
-              
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-primary transition-colors duration-300">
-                    <HackerText text={item.title} trigger={themeChangeCount} />
-                  </h3>
-                </div>
+        {items.map((item, index) => {
+          const cardId = `about-${index}`;
+          const isHighlighted = hoveredItem === cardId || (hoveredItem === null && visibleItems.has(cardId));
+          
+          return (
+            <div 
+              key={index}
+              id={cardId}
+              data-card-id={cardId}
+              className={`cursor-pointer transition-all duration-300 ${
+                isHighlighted ? 'opacity-100 brightness-110' : 'opacity-50'
+              }`}
+              onMouseEnter={() => setHoveredItem(cardId)}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
+              <div className={`bg-background/40 backdrop-blur-md transition-all duration-300 overflow-hidden ${
+                isHighlighted ? 'bg-background/80 shadow-lg' : ''
+              }`}>
+                {item.isProfile && (
+                  <div className="aspect-square overflow-hidden">
+                    <img 
+                      src={item.image} 
+                      alt={item.title}
+                      className="w-full h-full object-cover opacity-80 transition-all duration-300"
+                      loading="eager"
+                      decoding="async"
+                      style={{ imageRendering: 'auto' }}
+                    />
+                  </div>
+                )}
                 
-                <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed group-hover:text-foreground/90 transition-colors duration-300">
-                  <HackerText text={item.description} trigger={themeChangeCount} />
-                </p>
-                
-                <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-primary/60 group-hover:w-12 transition-all duration-300"></div>
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-xs font-mono font-medium leading-tight transition-colors duration-300">
+                      <HackerText text={item.title} trigger={themeChangeCount} />
+                    </h3>
+                  </div>
+                  
+                  <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed transition-colors duration-300">
+                    <HackerText text={item.description} trigger={themeChangeCount} />
+                  </p>
+                  
+                  <div className={`mt-4 h-px bg-gradient-to-r from-border/40 to-transparent transition-all duration-300 ${
+                    isHighlighted ? 'w-12 from-primary/60' : 'w-6'
+                  }`}></div>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -375,7 +439,13 @@ const ParallaxColumns = () => {
         }}
       >
         {items.map((item, index) => (
-          <BentoCard key={index} item={item} isWork={isWork} isPlayground={isPlayground} />
+          <BentoCard 
+            key={index} 
+            item={item} 
+            isWork={isWork} 
+            isPlayground={isPlayground} 
+            cardId={`${title.toLowerCase()}-${index}`}
+          />
         ))}
       </div>
     </div>
@@ -384,7 +454,6 @@ const ParallaxColumns = () => {
   return (
     <>
       <div ref={containerRef} className="bg-gradient-to-br from-background via-background to-background/95 z-30">
-        {/* Progress bar aligned to parallax section */}
         <div className="fixed top-0 left-0 right-0 z-50">
           <Progress 
             value={progress} 

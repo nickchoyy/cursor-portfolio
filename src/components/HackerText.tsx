@@ -5,7 +5,7 @@ const SYMBOLS = "!@#$%^&*()_+=<>?/|~".split("");
 
 interface HackerTextProps {
   text: string;
-  trigger: number; // Use numeric counter for reliable triggering
+  trigger: number;
   className?: string;
 }
 
@@ -17,6 +17,16 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
     // Only trigger if the trigger value has actually changed
     if (previousTrigger.current === trigger) return;
     previousTrigger.current = trigger;
+
+    // Calculate speed based on text length
+    const textLength = text.length;
+    const isLongText = textLength > 50; // For long skill lists
+    const isMediumText = textLength > 20;
+    
+    // Adjust speeds based on text length
+    const scrambleFrames = isLongText ? 1 : isMediumText ? 2 : 3;
+    const scrambleDelay = isLongText ? 10 : isMediumText ? 15 : 20;
+    const resolveDelay = isLongText ? 8 : isMediumText ? 12 : 15;
 
     let frame = 0;
     let scrambleInterval: NodeJS.Timeout;
@@ -30,11 +40,11 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
           .join("");
         setDisplay(scrambled);
         frame++;
-        if (frame > 2) { // Reduced from 4 to 2 for faster animation
+        if (frame > scrambleFrames) {
           clearInterval(scrambleInterval);
           resolve();
         }
-      }, 20); // Reduced from 30ms to 20ms
+      }, scrambleDelay);
     };
 
     const resolve = () => {
@@ -50,9 +60,9 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
         i++;
         if (i >= text.length) {
           clearInterval(resolveInterval);
-          setDisplay(text); // Final reset without delay
+          setDisplay(text);
         }
-      }, 15); // Reduced from 25ms to 15ms
+      }, resolveDelay);
     };
 
     scramble();

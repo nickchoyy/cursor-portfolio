@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -76,10 +77,10 @@
   }
 
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto; /* Remove smooth scroll behavior for manual control */
   }
 
-  /* Enhanced smooth scrolling */
+  /* Enhanced smooth scrolling without physics/inertia */
   * {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;
@@ -100,6 +101,12 @@
 
   *::-webkit-scrollbar-thumb:hover {
     background-color: hsl(var(--border) / 0.8);
+  }
+
+  /* Direct transform animations without physics */
+  .parallax-column {
+    will-change: transform;
+    transition: transform 0.1s linear;
   }
 
   /* Dark mode light effects */
