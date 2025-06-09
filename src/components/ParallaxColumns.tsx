@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 
 const ParallaxColumns = () => {
@@ -99,9 +98,6 @@ const ParallaxColumns = () => {
     }
   ];
 
-  // Show parallax section when scrolled past hero
-  const showParallax = scrollY > window.innerHeight * 0.7;
-
   // Parallax calculations - middle column goes faster
   const leftOffset = scrollY * 0.3;
   const centerOffset = scrollY * 0.8;
@@ -162,12 +158,8 @@ const ParallaxColumns = () => {
 
   return (
     <>
-      {/* Parallax content wrapper */}
-      <div 
-        className={`fixed inset-0 bg-gradient-to-br from-background via-background to-background/95 z-30 transition-all duration-700 ease-out ${
-          showParallax ? 'translate-y-0' : 'translate-y-full'
-        }`}
-      >
+      {/* Parallax content wrapper - now always visible */}
+      <div className="bg-gradient-to-br from-background via-background to-background/95 z-30">
         {/* Sticky header */}
         <div className="sticky top-0 bg-background/80 backdrop-blur-md border-b border-border/20 z-40">
           <div className="grid grid-cols-3 gap-8 px-8 py-8">
