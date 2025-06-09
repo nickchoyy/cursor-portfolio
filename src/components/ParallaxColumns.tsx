@@ -1,13 +1,47 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Progress } from './ui/progress';
 
 const ParallaxColumns = () => {
   const [scrollY, setScrollY] = useState(0);
+  const [velocity, setVelocity] = useState(0);
+  const lastScrollY = useRef(0);
+  const lastTimestamp = useRef(0);
+  const rafId = useRef<number>();
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const handleScroll = () => {
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+      }
+
+      rafId.current = requestAnimationFrame((timestamp) => {
+        const currentScrollY = window.scrollY;
+        const deltaY = currentScrollY - lastScrollY.current;
+        const deltaTime = timestamp - lastTimestamp.current;
+        
+        if (deltaTime > 0) {
+          const currentVelocity = deltaY / deltaTime;
+          setVelocity(currentVelocity * 1000); // Convert to pixels per second
+        }
+        
+        setScrollY(currentScrollY);
+        lastScrollY.current = currentScrollY;
+        lastTimestamp.current = timestamp;
+      });
+    };
+
+    // Add smooth scroll behavior to html
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+      }
+      document.documentElement.style.scrollBehavior = '';
+    };
   }, []);
 
   const aboutItems = [
@@ -148,13 +182,16 @@ const ParallaxColumns = () => {
   const baseScrollThreshold = 200;
   const adjustedScrollY = Math.max(0, scrollY - baseScrollThreshold);
   
-  const leftOffset = adjustedScrollY * 0.2;
-  const centerOffset = adjustedScrollY * 0.5;
-  const rightOffset = adjustedScrollY * 0.2;
+  // Add velocity-based easing to parallax offsets
+  const velocityDamping = Math.min(Math.abs(velocity) / 100, 1);
+  const leftOffset = adjustedScrollY * (0.2 + velocityDamping * 0.1);
+  const centerOffset = adjustedScrollY * (0.5 + velocityDamping * 0.15);
+  const rightOffset = adjustedScrollY * (0.2 + velocityDamping * 0.1);
 
-  // Calculate progress based on scroll within parallax section
-  const parallaxSectionHeight = 4000; // Approximate height
-  const progressValue = Math.min(100, (adjustedScrollY / parallaxSectionHeight) * 100);
+  // Calculate progress with smoother interpolation
+  const parallaxSectionHeight = 4000;
+  const rawProgress = (adjustedScrollY / parallaxSectionHeight) * 100;
+  const progressValue = Math.min(100, Math.max(0, rawProgress));
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
     <div className={`group cursor-pointer transition-opacity duration-300 ${isWork || isPlayground ? 'opacity-85 hover:opacity-100' : 'opacity-70 hover:opacity-100'}`}>
@@ -224,7 +261,7 @@ const ParallaxColumns = () => {
         className="group cursor-pointer opacity-70 hover:opacity-100 transition-opacity duration-300 will-change-transform"
         style={{ 
           transform: `translateY(-${offset}px)`,
-          transition: 'opacity 0.3s ease, transform none'
+          transition: 'opacity 0.3s ease'
         }}
       >
         <div className="space-y-4">
@@ -268,8 +305,7 @@ const ParallaxColumns = () => {
       <div 
         className="space-y-4 will-change-transform"
         style={{ 
-          transform: `translateY(-${offset}px)`,
-          transition: 'none'
+          transform: `translateY(-${offset}px)`
         }}
       >
         {items.map((item, index) => (
@@ -282,9 +318,12 @@ const ParallaxColumns = () => {
   return (
     <>
       <div className="bg-gradient-to-br from-background via-background to-background/95 z-30">
-        {/* Progress bar */}
+        {/* Smooth progress bar */}
         <div className="fixed top-0 left-0 right-0 z-50">
-          <Progress value={progressValue} className="h-1 rounded-none bg-background/20" />
+          <Progress 
+            value={progressValue} 
+            className="h-1 rounded-none bg-background/20 transition-all duration-150 ease-out" 
+          />
         </div>
 
         <div className="sticky top-0 bg-background/80 backdrop-blur-md border-b border-border/20 z-40">
