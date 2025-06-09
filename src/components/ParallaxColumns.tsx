@@ -7,6 +7,7 @@ const ParallaxColumns = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const [headerAtTop, setHeaderAtTop] = useState(false);
   const [parallaxStartY, setParallaxStartY] = useState(0);
+  const [animatedParallaxScroll, setAnimatedParallaxScroll] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,6 +34,22 @@ const ParallaxColumns = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [headerAtTop]);
+
+  useEffect(() => {
+    let animationId: number;
+
+    const animate = () => {
+      const target = headerAtTop ? Math.max(0, scrollY - parallaxStartY) : 0;
+      setAnimatedParallaxScroll((prev) => prev + (target - prev) * 0.1); // LERP
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
+  }, [scrollY, headerAtTop, parallaxStartY]);
 
   const aboutItems = [
     {
@@ -228,14 +245,10 @@ const ParallaxColumns = () => {
   const baseScrollThreshold = 200;
   const adjustedScrollY = Math.max(0, scrollY - baseScrollThreshold);
   
-  // Only move columns when header is at top
-  const parallaxMultiplier = headerAtTop ? 1 : 0;
-  const leftOffset = adjustedScrollY * 0.4 * parallaxMultiplier;
-  const centerOffset = adjustedScrollY * 0.2 * parallaxMultiplier; // Slower than outer columns
-  const rightOffset = adjustedScrollY * 0.4 * parallaxMultiplier;
-
-  // Calculate parallax offset only after header reaches top
-  const parallaxScrollDistance = headerAtTop ? Math.max(0, scrollY - parallaxStartY) : 0;
+  // Use animated parallax scroll for smooth transitions
+  const leftOffset = animatedParallaxScroll * 0.4;
+  const centerOffset = animatedParallaxScroll * 0.2; // Slower than outer columns
+  const rightOffset = animatedParallaxScroll * 0.4;
   
   // Fixed progress calculation - only track when actually in parallax section
   const parallaxSectionStart = baseScrollThreshold;
@@ -244,8 +257,8 @@ const ParallaxColumns = () => {
   const totalPlaygroundHeight = playgroundItemsCount * estimatedItemHeight;
   
   // Only calculate progress when past the threshold
-  const progressValue = headerAtTop && parallaxScrollDistance > 0
-    ? Math.min(100, Math.max(0, (parallaxScrollDistance / totalPlaygroundHeight) * 100))
+  const progressValue = headerAtTop && animatedParallaxScroll > 0
+    ? Math.min(100, Math.max(0, (animatedParallaxScroll / totalPlaygroundHeight) * 100))
     : 0;
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
