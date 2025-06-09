@@ -1,5 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
+import { Progress } from './ui/progress';
 
 const ParallaxColumns = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -55,6 +55,34 @@ const ParallaxColumns = () => {
       description: 'Browser extension experiences',
       year: '21-22',
       image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=280&fit=crop'
+    },
+    {
+      title: 'Spatial Computing',
+      subtitle: 'Mixed Reality',
+      description: 'Next-gen spatial interfaces',
+      year: '2024',
+      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop'
+    },
+    {
+      title: 'Neural Networks',
+      subtitle: 'AI Research',
+      description: 'Human-AI interaction patterns',
+      year: '23-24',
+      image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=280&fit=crop'
+    },
+    {
+      title: 'Quantum Interfaces',
+      subtitle: 'Future Computing',
+      description: 'Quantum computing visualization',
+      year: '2023',
+      image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=300&fit=crop'
+    },
+    {
+      title: 'BioTech Dashboard',
+      subtitle: 'Medical Interface',
+      description: 'Biotechnology data visualization',
+      year: '2022',
+      image: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=400&h=250&fit=crop'
     }
   ];
 
@@ -86,6 +114,34 @@ const ParallaxColumns = () => {
       description: 'Algorithmic art and coding',
       tech: 'p5.js, Processing',
       image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=400&h=320&fit=crop'
+    },
+    {
+      title: 'Neural Style Transfer',
+      subtitle: 'AI Art',
+      description: 'Style transfer using deep learning',
+      tech: 'PyTorch, OpenCV',
+      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=280&fit=crop'
+    },
+    {
+      title: 'Interactive Particles',
+      subtitle: 'Physics Sim',
+      description: 'Real-time particle systems',
+      tech: 'JavaScript, Canvas',
+      image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=300&fit=crop'
+    },
+    {
+      title: 'VR Sculpting',
+      subtitle: 'Spatial Art',
+      description: 'Virtual reality art creation',
+      tech: 'Unity, C#',
+      image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=250&fit=crop'
+    },
+    {
+      title: 'Audio Visualization',
+      subtitle: 'Sound Design',
+      description: 'Real-time audio reactive visuals',
+      tech: 'Web Audio API',
+      image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=320&fit=crop'
     }
   ];
 
@@ -95,6 +151,10 @@ const ParallaxColumns = () => {
   const leftOffset = adjustedScrollY * 0.2;
   const centerOffset = adjustedScrollY * 0.5;
   const rightOffset = adjustedScrollY * 0.2;
+
+  // Calculate progress based on scroll within parallax section
+  const parallaxSectionHeight = 4000; // Approximate height
+  const progressValue = Math.min(100, (adjustedScrollY / parallaxSectionHeight) * 100);
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
     <div className={`group cursor-pointer transition-opacity duration-300 ${isWork || isPlayground ? 'opacity-85 hover:opacity-100' : 'opacity-70 hover:opacity-100'}`}>
@@ -222,6 +282,11 @@ const ParallaxColumns = () => {
   return (
     <>
       <div className="bg-gradient-to-br from-background via-background to-background/95 z-30">
+        {/* Progress bar */}
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <Progress value={progressValue} className="h-1 rounded-none bg-background/20" />
+        </div>
+
         <div className="sticky top-0 bg-background/80 backdrop-blur-md border-b border-border/20 z-40">
           <div className="grid grid-cols-3 gap-2 px-6 py-6">
             <div className="text-left">
