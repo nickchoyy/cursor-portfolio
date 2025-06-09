@@ -1,111 +1,21 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { Progress } from './ui/progress';
 
 const ParallaxColumns = () => {
   const [scrollY, setScrollY] = useState(0);
-  const [animatedScrollY, setAnimatedScrollY] = useState(0);
-  const [velocity, setVelocity] = useState(0);
-  const [momentum, setMomentum] = useState(0);
-  const lastScrollY = useRef(0);
-  const lastTimestamp = useRef(0);
-  const rafId = useRef<number>();
-  const momentumRafId = useRef<number>();
-  const animationLoopId = useRef<number>();
-  const isScrolling = useRef(false);
-  const scrollTimeout = useRef<NodeJS.Timeout>();
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      isScrolling.current = true;
-      
-      // Clear existing timeout
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
-      }
-
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
-      }
-
-      rafId.current = requestAnimationFrame((timestamp) => {
-        const currentScrollY = window.scrollY;
-        const deltaY = currentScrollY - lastScrollY.current;
-        const deltaTime = timestamp - lastTimestamp.current;
-        
-        if (deltaTime > 0) {
-          const currentVelocity = deltaY / deltaTime;
-          setVelocity(currentVelocity * 1000); // Convert to pixels per second
-        }
-        
-        setScrollY(currentScrollY);
-        lastScrollY.current = currentScrollY;
-        lastTimestamp.current = timestamp;
-      });
-
-      // Detect when scrolling stops and apply momentum
-      scrollTimeout.current = setTimeout(() => {
-        isScrolling.current = false;
-        applyMomentum();
-      }, 50);
+      setScrollY(window.scrollY);
     };
 
-    const applyMomentum = () => {
-      let currentMomentum = velocity * 0.3; // Initial momentum based on velocity
-      const decay = 0.95; // Momentum decay factor
-      
-      const animateMomentum = () => {
-        if (Math.abs(currentMomentum) > 0.1) {
-          setMomentum(currentMomentum);
-          currentMomentum *= decay;
-          momentumRafId.current = requestAnimationFrame(animateMomentum);
-        } else {
-          setMomentum(0);
-        }
-      };
-
-      if (momentumRafId.current) {
-        cancelAnimationFrame(momentumRafId.current);
-      }
-      
-      animateMomentum();
-    };
-
-    const animateScroll = () => {
-      // Interpolate scrollY → animatedScrollY
-      setAnimatedScrollY(prev => {
-        const current = scrollY;
-        const diff = current - prev;
-        return prev + diff * 0.1;
-      });
-
-      animationLoopId.current = requestAnimationFrame(animateScroll);
-    };
-
-    // Add smooth scroll behavior to html
-    document.documentElement.style.scrollBehavior = 'auto'; // Changed from 'smooth' for better physics
-    
     window.addEventListener('scroll', handleScroll, { passive: true });
-    animateScroll();
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
-      }
-      if (momentumRafId.current) {
-        cancelAnimationFrame(momentumRafId.current);
-      }
-      if (animationLoopId.current) {
-        cancelAnimationFrame(animationLoopId.current);
-      }
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
-      }
-      document.documentElement.style.scrollBehavior = '';
     };
-  }, [scrollY, velocity]);
+  }, []);
 
   const aboutItems = [
     {
@@ -299,12 +209,12 @@ const ParallaxColumns = () => {
   ];
 
   const baseScrollThreshold = 200;
-  const adjustedScrollY = Math.max(0, animatedScrollY - baseScrollThreshold);
+  const adjustedScrollY = Math.max(0, scrollY - baseScrollThreshold);
   
-  // Enhanced parallax with significantly faster middle column
-  const leftOffset = adjustedScrollY * 0.25;
-  const centerOffset = adjustedScrollY * 0.6; // Much faster than outer columns
-  const rightOffset = adjustedScrollY * 0.25;
+  // Adjusted parallax speeds - middle column slower than outer columns
+  const leftOffset = adjustedScrollY * 0.4;
+  const centerOffset = adjustedScrollY * 0.2; // Slower than outer columns
+  const rightOffset = adjustedScrollY * 0.4;
 
   // Progress calculation based on rightmost (playground) column only
   const parallaxSectionStart = baseScrollThreshold;
@@ -312,19 +222,19 @@ const ParallaxColumns = () => {
   const playgroundItemsCount = playgroundItems.length;
   const totalPlaygroundHeight = playgroundItemsCount * estimatedItemHeight + 800; // Add buffer for spacing
   
-  const parallaxProgress = Math.max(0, animatedScrollY - parallaxSectionStart);
+  const parallaxProgress = Math.max(0, scrollY - parallaxSectionStart);
   const rawProgress = (parallaxProgress / totalPlaygroundHeight) * 100;
   const progressValue = Math.min(100, Math.max(0, rawProgress));
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
-    <div className={`group cursor-pointer transition-opacity duration-300 ${isWork || isPlayground ? 'opacity-80 hover:opacity-100' : 'opacity-60 hover:opacity-100'}`}>
+    <div className={`group cursor-pointer transition-all duration-300 ${isWork || isPlayground ? 'opacity-80 hover:opacity-100' : 'opacity-60 hover:opacity-100'}`}>
       <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 hover:bg-background/60 hover:border-border/40 overflow-hidden">
         {item.image && !item.isProfile && (
           <div className="aspect-[4/3] overflow-hidden">
             <img 
               src={item.image} 
               alt={item.title}
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
               loading="lazy"
               decoding="async"
             />
@@ -336,7 +246,7 @@ const ParallaxColumns = () => {
             <img 
               src={item.image} 
               alt={item.title}
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
               loading="eager"
               decoding="async"
               style={{ imageRendering: 'auto' }}
@@ -346,7 +256,7 @@ const ParallaxColumns = () => {
         
         <div className="p-6">
           <div className="flex items-start justify-between mb-3">
-            <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-foreground/90 transition-colors">
+            <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-foreground/90 transition-colors duration-300">
               {item.title}
             </h3>
             {isWork && (
@@ -372,7 +282,7 @@ const ParallaxColumns = () => {
             </span>
           )}
           
-          <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-border/80 transition-colors"></div>
+          <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-border/80 transition-colors duration-300"></div>
         </div>
       </div>
     </div>
@@ -381,10 +291,9 @@ const ParallaxColumns = () => {
   const AboutSection = ({ items, offset }: { items: any[], offset: number }) => (
     <div className="w-full">
       <div 
-        className="group cursor-pointer opacity-60 hover:opacity-100 transition-opacity duration-300 will-change-transform"
+        className="group cursor-pointer opacity-60 hover:opacity-100 transition-opacity duration-300"
         style={{ 
-          transform: `translateY(-${offset}px)`,
-          transition: 'opacity 0.3s ease'
+          transform: `translateY(-${offset}px)`
         }}
       >
         <div className="space-y-4">
@@ -395,7 +304,7 @@ const ParallaxColumns = () => {
                   <img 
                     src={item.image} 
                     alt={item.title}
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
                     loading="eager"
                     decoding="async"
                     style={{ imageRendering: 'auto' }}
@@ -405,7 +314,7 @@ const ParallaxColumns = () => {
               
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-foreground/90 transition-colors">
+                  <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-foreground/90 transition-colors duration-300">
                     {item.title}
                   </h3>
                 </div>
@@ -414,7 +323,7 @@ const ParallaxColumns = () => {
                   {item.description}
                 </p>
                 
-                <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-border/80 transition-colors"></div>
+                <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-border/80 transition-colors duration-300"></div>
               </div>
             </div>
           ))}
@@ -426,7 +335,7 @@ const ParallaxColumns = () => {
   const ColumnContent = ({ items, offset, title, isWork = false, isPlayground = false }: { items: any[], offset: number, title: string, isWork?: boolean, isPlayground?: boolean }) => (
     <div className="w-full">
       <div 
-        className="space-y-4 will-change-transform"
+        className="space-y-4"
         style={{ 
           transform: `translateY(-${offset}px)`
         }}
@@ -441,14 +350,11 @@ const ParallaxColumns = () => {
   return (
     <>
       <div ref={containerRef} className="bg-gradient-to-br from-background via-background to-background/95 z-30">
-        {/* Enhanced smooth progress bar */}
+        {/* Progress bar */}
         <div className="fixed top-0 left-0 right-0 z-50">
           <Progress 
             value={progressValue} 
             className="h-1 rounded-none bg-background/20" 
-            style={{
-              transition: 'all 0.1s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}
           />
         </div>
 
