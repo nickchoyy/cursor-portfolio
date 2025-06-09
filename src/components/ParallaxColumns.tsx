@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { Progress } from './ui/progress';
 import HackerText from './HackerText';
@@ -293,17 +294,17 @@ const ParallaxColumns = () => {
         data-card-id={cardId}
         className={`cursor-pointer transition-all duration-300 ${
           isHighlighted 
-            ? 'opacity-100 brightness-110' 
+            ? 'opacity-100' 
             : isWork || isPlayground 
-              ? 'opacity-70' 
-              : 'opacity-50'
+              ? 'opacity-85' 
+              : 'opacity-75'
         }`}
         onMouseEnter={() => setHoveredItem(cardId)}
         onMouseLeave={() => setHoveredItem(null)}
       >
         <div className={`bg-background/40 backdrop-blur-md transition-all duration-300 overflow-hidden ${
           isHighlighted 
-            ? 'bg-background/80 shadow-lg' 
+            ? 'bg-background/80' 
             : ''
         }`}>
           {item.image && !item.isProfile && (
@@ -386,13 +387,13 @@ const ParallaxColumns = () => {
               id={cardId}
               data-card-id={cardId}
               className={`cursor-pointer transition-all duration-300 ${
-                isHighlighted ? 'opacity-100 brightness-110' : 'opacity-50'
+                isHighlighted ? 'opacity-100' : 'opacity-75'
               }`}
               onMouseEnter={() => setHoveredItem(cardId)}
               onMouseLeave={() => setHoveredItem(null)}
             >
               <div className={`bg-background/40 backdrop-blur-md transition-all duration-300 overflow-hidden ${
-                isHighlighted ? 'bg-background/80 shadow-lg' : ''
+                isHighlighted ? 'bg-background/80' : ''
               }`}>
                 {item.isProfile && (
                   <div className="aspect-square overflow-hidden">
@@ -484,7 +485,7 @@ const ParallaxColumns = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 px-6 py-8 min-h-screen overflow-hidden">
+        <div className="grid grid-cols-3 gap-2 px-6 py-8 pb-0">
           <AboutSection items={aboutItems} offset={leftOffset} />
           <ColumnContent items={workItems} offset={centerOffset} title="Work" isWork={true} />
           <ColumnContent items={playgroundItems} offset={rightOffset} title="Playground" isPlayground={true} />
