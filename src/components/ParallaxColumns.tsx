@@ -12,18 +12,17 @@ const ParallaxColumns = () => {
   const aboutItems = [
     {
       title: 'Profile',
-      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=500&fit=crop',
-      description: 'AR/AI Designer, 8+ years'
+      image: '/lovable-uploads/cf4e7fa2-b04a-4d24-927f-0ca3815a7e77.png',
+      description: "I'm a multidisciplinary designer with a background in cognitive science, data, and visual storytelling. My journey blends human behavior, aesthetics, and code—shaping interfaces that are not just usable, but intuitive and expressive.",
+      isProfile: true
     },
     {
-      title: 'Skills',
-      image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop',
-      description: 'Unity, AI, Blender, Lens Studio'
+      title: 'Focus',
+      description: 'I focus on interaction design, accessibility, and systems thinking—crafting digital experiences that feel as natural as they are powerful. Whether it\'s building real-time apps or design systems, I love making the complex feel simple.'
     },
     {
-      title: 'Background',
-      image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=350&fit=crop',
-      description: 'Emerging tech experiences'
+      title: 'Approach',
+      description: 'Curious by default, fast by choice. I prototype early, test obsessively, and refine through feedback. My process is collaborative, data-aware, and driven by empathy—always centered on the real people behind the pixels.'
     }
   ];
 
@@ -89,8 +88,7 @@ const ParallaxColumns = () => {
     }
   ];
 
-  // Adjusted parallax calculations - ensure titles reach top before content starts scrolling
-  const baseScrollThreshold = 200; // Reduced to allow projects to peek earlier
+  const baseScrollThreshold = 200;
   const adjustedScrollY = Math.max(0, scrollY - baseScrollThreshold);
   
   const leftOffset = adjustedScrollY * 0.2;
@@ -98,10 +96,20 @@ const ParallaxColumns = () => {
   const rightOffset = adjustedScrollY * 0.2;
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
-    <div className="group cursor-pointer opacity-40 hover:opacity-100 transition-opacity duration-300">
+    <div className="group cursor-pointer opacity-30 hover:opacity-100 transition-opacity duration-300">
       <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-500 hover:bg-background/60 hover:border-border/40 hover:shadow-2xl hover:shadow-background/10 hover:-translate-y-2 overflow-hidden">
-        {item.image && (
+        {item.image && !item.isProfile && (
           <div className="aspect-[4/3] overflow-hidden">
+            <img 
+              src={item.image} 
+              alt={item.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        )}
+        
+        {item.isProfile && (
+          <div className="aspect-square overflow-hidden">
             <img 
               src={item.image} 
               alt={item.title}
@@ -112,7 +120,7 @@ const ParallaxColumns = () => {
         
         <div className="p-6">
           <div className="flex items-start justify-between mb-3">
-            <h3 className="text-sm font-mono font-medium leading-tight group-hover:text-foreground/90 transition-colors">
+            <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-foreground/90 transition-colors">
               {item.title}
             </h3>
             {isWork && (
@@ -147,7 +155,7 @@ const ParallaxColumns = () => {
   const ColumnContent = ({ items, offset, title, isWork = false, isPlayground = false }: { items: any[], offset: number, title: string, isWork?: boolean, isPlayground?: boolean }) => (
     <div className="w-full">
       <div 
-        className="space-y-6 will-change-transform"
+        className="space-y-4 will-change-transform"
         style={{ 
           transform: `translateY(-${offset}px)`,
           transition: 'none'
@@ -164,23 +172,23 @@ const ParallaxColumns = () => {
     <>
       <div className="bg-gradient-to-br from-background via-background to-background/95 z-30">
         <div className="sticky top-0 bg-background/80 backdrop-blur-md border-b border-border/20 z-40">
-          <div className="grid grid-cols-3 gap-4 px-8 py-8">
+          <div className="grid grid-cols-3 gap-2 px-6 py-6">
             <div className="text-left">
-              <h2 className="text-sm font-mono font-medium tracking-wide">About</h2>
+              <h2 className="text-xs font-mono font-medium tracking-wide">About</h2>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
             <div className="text-left">
-              <h2 className="text-sm font-mono font-medium tracking-wide">Work</h2>
+              <h2 className="text-xs font-mono font-medium tracking-wide">Work</h2>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
             <div className="text-left">
-              <h2 className="text-sm font-mono font-medium tracking-wide">Playground</h2>
+              <h2 className="text-xs font-mono font-medium tracking-wide">Playground</h2>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 px-8 py-16 min-h-screen overflow-hidden">
+        <div className="grid grid-cols-3 gap-2 px-6 py-16 min-h-screen overflow-hidden">
           <ColumnContent items={aboutItems} offset={leftOffset} title="About" />
           <ColumnContent items={workItems} offset={centerOffset} title="Work" isWork={true} />
           <ColumnContent items={playgroundItems} offset={rightOffset} title="Playground" isPlayground={true} />
