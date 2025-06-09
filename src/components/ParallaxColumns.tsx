@@ -6,6 +6,7 @@ const ParallaxColumns = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [headerAtTop, setHeaderAtTop] = useState(false);
+  const [parallaxStartY, setParallaxStartY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,7 +16,14 @@ const ParallaxColumns = () => {
       // Check if header is at top of viewport
       if (headerRef.current) {
         const headerRect = headerRef.current.getBoundingClientRect();
-        setHeaderAtTop(headerRect.top <= 0);
+        const isAtTop = headerRect.top <= 0;
+        
+        // Capture the scroll position when header first reaches top
+        if (isAtTop && !headerAtTop) {
+          setParallaxStartY(currentScrollY);
+        }
+        
+        setHeaderAtTop(isAtTop);
       }
     };
 
@@ -24,7 +32,7 @@ const ParallaxColumns = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [headerAtTop]);
 
   const aboutItems = [
     {
@@ -226,6 +234,9 @@ const ParallaxColumns = () => {
   const centerOffset = adjustedScrollY * 0.2 * parallaxMultiplier; // Slower than outer columns
   const rightOffset = adjustedScrollY * 0.4 * parallaxMultiplier;
 
+  // Calculate parallax offset only after header reaches top
+  const parallaxScrollDistance = headerAtTop ? Math.max(0, scrollY - parallaxStartY) : 0;
+  
   // Fixed progress calculation - only track when actually in parallax section
   const parallaxSectionStart = baseScrollThreshold;
   const estimatedItemHeight = 400;
@@ -233,8 +244,8 @@ const ParallaxColumns = () => {
   const totalPlaygroundHeight = playgroundItemsCount * estimatedItemHeight;
   
   // Only calculate progress when past the threshold
-  const progressValue = scrollY >= parallaxSectionStart 
-    ? Math.min(100, Math.max(0, ((scrollY - parallaxSectionStart) / totalPlaygroundHeight) * 100))
+  const progressValue = headerAtTop && parallaxScrollDistance > 0
+    ? Math.min(100, Math.max(0, (parallaxScrollDistance / totalPlaygroundHeight) * 100))
     : 0;
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
