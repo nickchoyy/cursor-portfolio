@@ -90,7 +90,7 @@ const ParallaxColumns = () => {
   ];
 
   // Adjusted parallax calculations - ensure titles reach top before content starts scrolling
-  const baseScrollThreshold = 400; // Increased threshold so titles reach top first
+  const baseScrollThreshold = 200; // Reduced to allow projects to peek earlier
   const adjustedScrollY = Math.max(0, scrollY - baseScrollThreshold);
   
   const leftOffset = adjustedScrollY * 0.2;
@@ -164,23 +164,23 @@ const ParallaxColumns = () => {
     <>
       <div className="bg-gradient-to-br from-background via-background to-background/95 z-30">
         <div className="sticky top-0 bg-background/80 backdrop-blur-md border-b border-border/20 z-40">
-          <div className="grid grid-cols-3 gap-8 px-8 py-8">
-            <div className="text-center">
-              <h2 className="text-xl font-mono font-medium tracking-wide">About</h2>
-              <div className="w-12 h-px bg-border/40 mx-auto mt-2"></div>
+          <div className="grid grid-cols-3 gap-4 px-8 py-8">
+            <div className="text-left">
+              <h2 className="text-sm font-mono font-medium tracking-wide">About</h2>
+              <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
-            <div className="text-center">
-              <h2 className="text-xl font-mono font-medium tracking-wide">Work</h2>
-              <div className="w-12 h-px bg-border/40 mx-auto mt-2"></div>
+            <div className="text-left">
+              <h2 className="text-sm font-mono font-medium tracking-wide">Work</h2>
+              <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
-            <div className="text-center">
-              <h2 className="text-xl font-mono font-medium tracking-wide">Playground</h2>
-              <div className="w-12 h-px bg-border/40 mx-auto mt-2"></div>
+            <div className="text-left">
+              <h2 className="text-sm font-mono font-medium tracking-wide">Playground</h2>
+              <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-8 px-8 py-16 min-h-screen overflow-hidden">
+        <div className="grid grid-cols-3 gap-4 px-8 py-16 min-h-screen overflow-hidden">
           <ColumnContent items={aboutItems} offset={leftOffset} title="About" />
           <ColumnContent items={workItems} offset={centerOffset} title="Work" isWork={true} />
           <ColumnContent items={playgroundItems} offset={rightOffset} title="Playground" isPlayground={true} />
