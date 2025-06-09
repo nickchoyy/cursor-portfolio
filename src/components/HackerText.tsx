@@ -29,11 +29,11 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
           .join("");
         setDisplay(scrambled);
         frame++;
-        if (frame > 6) { // Reduced from 10 to 6 for faster effect
+        if (frame > 4) { // Reduced for faster effect
           clearInterval(scrambleInterval);
           resolve();
         }
-      }, 25); // Reduced from 40 to 25 for faster scrambling
+      }, 20); // Faster scrambling
     };
 
     const resolve = () => {
@@ -50,10 +50,13 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
         i++;
         if (i >= text.length) {
           clearInterval(resolveInterval);
-          setDisplay(text);
-          setIsAnimating(false);
+          // After resolving, show normal text briefly then return to normal state
+          setTimeout(() => {
+            setDisplay(text);
+            setIsAnimating(false);
+          }, 200); // Brief pause to show the resolved text
         }
-      }, 20); // Reduced from 30 to 20 for faster resolving
+      }, 15); // Faster resolving
     };
 
     scramble();
