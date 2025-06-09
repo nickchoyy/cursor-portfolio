@@ -9,6 +9,7 @@ const ParallaxColumns = () => {
   const [parallaxStartY, setParallaxStartY] = useState(0);
   const [animatedParallaxScroll, setAnimatedParallaxScroll] = useState(0);
   const [smoothProgress, setSmoothProgress] = useState(0);
+  const animationRef = useRef<number>();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,39 +38,46 @@ const ParallaxColumns = () => {
   }, [headerAtTop]);
 
   useEffect(() => {
-    let animationId: number;
-
     const animate = () => {
       const target = headerAtTop ? Math.max(0, scrollY - parallaxStartY) : 0;
       
       setAnimatedParallaxScroll((prev) => {
         const diff = target - prev;
-        if (Math.abs(diff) < 0.1) return target; // Stop when close enough
-        return prev + diff * 0.05; // Reduced LERP factor for smoother motion
+        if (Math.abs(diff) < 0.5) {
+          // Stop animation when close enough to prevent infinite loops
+          if (animationRef.current) {
+            cancelAnimationFrame(animationRef.current);
+          }
+          return target;
+        }
+        return prev + diff * 0.08;
       });
       
-      animationId = requestAnimationFrame(animate);
+      animationRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    if (headerAtTop || animatedParallaxScroll > 0) {
+      animate();
+    }
 
     return () => {
-      cancelAnimationFrame(animationId);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
     };
   }, [scrollY, headerAtTop, parallaxStartY]);
 
-  // Smooth progress calculation
+  // Simple, stable progress calculation
   useEffect(() => {
-    const estimatedTotalHeight = playgroundItems.length * 400; // Estimated item height
-    const rawProgress = headerAtTop && animatedParallaxScroll > 0
-      ? Math.max(0, Math.min(100, (animatedParallaxScroll / estimatedTotalHeight) * 100))
-      : 0;
+    if (!headerAtTop) {
+      setSmoothProgress(0);
+      return;
+    }
+
+    const estimatedTotalHeight = playgroundItems.length * 300;
+    const rawProgress = Math.max(0, Math.min(100, (animatedParallaxScroll / estimatedTotalHeight) * 100));
     
-    setSmoothProgress((prev) => {
-      const diff = rawProgress - prev;
-      if (Math.abs(diff) < 0.1) return rawProgress;
-      return prev + diff * 0.08; // Smooth progress interpolation
-    });
+    setSmoothProgress(rawProgress);
   }, [animatedParallaxScroll, headerAtTop]);
 
   const aboutItems = [
@@ -263,20 +271,20 @@ const ParallaxColumns = () => {
     }
   ];
 
-  // Improved parallax offsets with smoother motion
-  const leftOffset = animatedParallaxScroll * 0.6; // Faster scroll for outer columns
-  const centerOffset = animatedParallaxScroll * 0.2; // Slower for center
-  const rightOffset = animatedParallaxScroll * 0.6; // Faster scroll for outer columns
+  // Improved parallax offsets
+  const leftOffset = animatedParallaxScroll * 0.6;
+  const centerOffset = animatedParallaxScroll * 0.2;
+  const rightOffset = animatedParallaxScroll * 0.6;
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
-    <div className={`group cursor-pointer transition-all duration-300 ${isWork || isPlayground ? 'opacity-80 hover:opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-      <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 group-hover:bg-background/60 group-hover:border-border/40 overflow-hidden">
+    <div className={`group cursor-pointer transition-all duration-300 ${isWork || isPlayground ? 'opacity-80 hover:opacity-100' : 'opacity-60 hover:opacity-100'} hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/10`}>
+      <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 group-hover:bg-background/80 group-hover:border-primary/40 group-hover:shadow-xl overflow-hidden">
         {item.image && !item.isProfile && (
           <div className="aspect-[4/3] overflow-hidden">
             <img 
               src={item.image} 
               alt={item.title}
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105"
               loading="lazy"
               decoding="async"
             />
@@ -288,7 +296,7 @@ const ParallaxColumns = () => {
             <img 
               src={item.image} 
               alt={item.title}
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105"
               loading="eager"
               decoding="async"
               style={{ imageRendering: 'auto' }}
@@ -298,33 +306,33 @@ const ParallaxColumns = () => {
         
         <div className="p-6">
           <div className="flex items-start justify-between mb-3">
-            <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-foreground/90 transition-colors duration-300">
+            <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-primary transition-colors duration-300">
               {item.title}
             </h3>
             {isWork && (
-              <span className="text-xs font-mono text-muted-foreground ml-4 shrink-0">
+              <span className="text-xs font-mono text-muted-foreground ml-4 shrink-0 group-hover:text-primary/70 transition-colors duration-300">
                 {item.year}
               </span>
             )}
           </div>
           
           {(isWork || isPlayground) && item.subtitle && (
-            <p className="text-xs font-mono text-muted-foreground mb-3 leading-relaxed">
+            <p className="text-xs font-mono text-muted-foreground mb-3 leading-relaxed group-hover:text-foreground/80 transition-colors duration-300">
               {item.subtitle}
             </p>
           )}
           
-          <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed">
+          <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed group-hover:text-foreground/90 transition-colors duration-300">
             {item.description}
           </p>
           
           {isPlayground && item.tech && (
-            <span className="text-xs font-mono text-muted-foreground/60 mt-3 block">
+            <span className="text-xs font-mono text-muted-foreground/60 mt-3 block group-hover:text-primary/60 transition-colors duration-300">
               {item.tech}
             </span>
           )}
           
-          <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-border/80 transition-colors duration-300"></div>
+          <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-primary/60 group-hover:w-12 transition-all duration-300"></div>
         </div>
       </div>
     </div>
@@ -333,20 +341,20 @@ const ParallaxColumns = () => {
   const AboutSection = ({ items, offset }: { items: any[], offset: number }) => (
     <div className="w-full">
       <div 
-        className="group cursor-pointer opacity-60 hover:opacity-100 transition-opacity duration-300"
+        className="group cursor-pointer opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-[1.01]"
         style={{ 
           transform: `translateY(-${offset}px)`
         }}
       >
         <div className="space-y-4">
           {items.map((item, index) => (
-            <div key={index} className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 group-hover:bg-background/60 group-hover:border-border/40 overflow-hidden">
+            <div key={index} className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 group-hover:bg-background/80 group-hover:border-primary/40 group-hover:shadow-xl overflow-hidden">
               {item.isProfile && (
                 <div className="aspect-square overflow-hidden">
                   <img 
                     src={item.image} 
                     alt={item.title}
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105"
                     loading="eager"
                     decoding="async"
                     style={{ imageRendering: 'auto' }}
@@ -356,16 +364,16 @@ const ParallaxColumns = () => {
               
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-foreground/90 transition-colors duration-300">
+                  <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-primary transition-colors duration-300">
                     {item.title}
                   </h3>
                 </div>
                 
-                <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed">
+                <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed group-hover:text-foreground/90 transition-colors duration-300">
                   {item.description}
                 </p>
                 
-                <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-border/80 transition-colors duration-300"></div>
+                <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-primary/60 group-hover:w-12 transition-all duration-300"></div>
               </div>
             </div>
           ))}
