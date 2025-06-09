@@ -41,23 +41,22 @@ const AsciiSky = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas dimensions
-    canvas.width = 400;
-    canvas.height = 300;
+    // Set canvas dimensions to full screen
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
     let animationFrameId: number;
-    let t = 0;
-    let rotation = 0;
-    let lastTime = 0;
+    let startTime: number | null = null;
+    const rotationPeriod = 12000; // 12 seconds for a full rotation
 
-    // Sun variables
-    const sunChars = ["@", "*", "#", "=", "~", "-", ".", "+"];
-    const rayChars = ["|", "/", "-", "\\"];
-
-    // Moon variables
-    const moonChars = ["o", "O", "*", "#", " ", ".", "+", "-", "="];
+    // Star variables for moon
     const starChars = [".", "+", "*"];
-    const starCount = 60;
+    const starCount = 150;
     const stars: Array<{
       x: number;
       y: number;
@@ -67,7 +66,7 @@ const AsciiSky = () => {
       flickerOffset: number;
     }> = [];
 
-    // Create twinkling stars for moon
+    // Create twinkling stars
     for (let i = 0; i < starCount; i++) {
       stars.push({
         x: Math.random(),
@@ -79,74 +78,119 @@ const AsciiSky = () => {
       });
     }
 
-    const drawSun = (time: number) => {
-      const width = canvas.width;
-      const height = canvas.height;
+    // Cloud drawing functions
+    const drawClouds = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
+      const cloudCount = 8;
+      ctx.fillStyle = isDark ? "#555555" : "#cccccc";
 
-      ctx.clearRect(0, 0, width, height);
+      for (let i = 0; i < cloudCount; i++) {
+        const x = (i / cloudCount) * canvas.width + Math.sin(Date.now() * 0.0001 + i) * 50;
+        const y = canvas.height * (0.2 + 0.3 * Math.sin(i));
+        drawCloud(ctx, x, y);
+      }
+    };
+
+    const drawCloud = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
       ctx.font = "12px monospace";
-      ctx.fillStyle = isDark ? "#cccccc" : "#ffcc66";
+      ctx.fillText("     .--.     ", x, y);
+      ctx.fillText("  .-(    ).   ", x, y + 12);
+      ctx.fillText(" (___.__)__)  ", x, y + 24);
+    };
 
-      // Time delta + rotation angle
-      const deltaTime = time - lastTime;
-      lastTime = time;
-      rotation += 0.0005 * deltaTime;
+    // Function to draw a character at a specific angle and distance from center
+    const drawCharAtPolar = (
+      char: string,
+      angle: number,
+      distance: number,
+      centerX: number,
+      centerY: number,
+      fontSize = 16,
+    ) => {
+      const x = centerX + Math.cos(angle) * distance;
+      const y = centerY + Math.sin(angle) * distance;
+      ctx.fillText(char, x - fontSize / 4, y + fontSize / 4);
+    };
 
-      // Move center along x-axis (looping back)
-      const centerX = (time * 0.1) % (width + 200) - 100;
-      const centerY = height / 2;
+    const drawSun = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
 
-      const sunRadius = Math.min(width, height) * 0.15;
+      // Calculate rotation angle
+      const rotationAngle = ((elapsed % rotationPeriod) / rotationPeriod) * 2 * Math.PI;
 
-      // Draw concentric ASCII rings
-      for (let r = sunRadius; r > 0; r -= 12) {
-        const circumference = 2 * Math.PI * r;
-        const charCount = Math.floor(circumference / 8);
-        const char = sunChars[Math.floor((sunRadius - r) / 12) % sunChars.length];
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw clouds first
+      drawClouds(ctx, canvas);
+      
+      ctx.fillStyle = isDark ? "#333333" : "#ffcc66";
+
+      // Calculate center of canvas
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      // ASCII characters for different densities
+      const sunCoreChars = ["@", "O", "0", "*", "=", "+"];
+      const rayChars = ["|", "/", "-", "\\"];
+
+      // Draw sun core
+      const sunRadius = Math.min(canvas.width, canvas.height) * 0.15;
+
+      // Draw concentric rings for sun core
+      for (let r = 0; r < sunRadius; r += 16) {
+        const ringRadius = sunRadius - r;
+        const circumference = 2 * Math.PI * ringRadius;
+        const charCount = Math.max(8, Math.floor(circumference / 12));
+        const char = sunCoreChars[Math.min(Math.floor(r / 16), sunCoreChars.length - 1)];
+
+        ctx.font = `${16 - (r / sunRadius) * 4}px monospace`;
 
         for (let i = 0; i < charCount; i++) {
-          const angle = (i / charCount) * 2 * Math.PI + rotation * 0.5;
-          const x = centerX + Math.cos(angle) * r;
-          const y = centerY + Math.sin(angle) * r;
-          ctx.fillText(char, x - 6, y + 4);
+          const angle = (i / charCount) * 2 * Math.PI;
+          drawCharAtPolar(char, angle, ringRadius, centerX, centerY);
         }
       }
 
-      // Sun core
-      ctx.font = "16px monospace";
-      ctx.fillText("O", centerX - 8, centerY + 6);
+      // Draw sun center
+      ctx.font = "24px monospace";
+      ctx.fillText("O", centerX - 8, centerY + 8);
 
-      // Rotating rays
+      // Draw rotating rays
       const rayCount = 24;
-      const maxRayLength = Math.min(width, height) * 0.4;
+      const maxRayLength = Math.min(canvas.width, canvas.height) * 0.4;
 
-      for (let i = 0; i < rayCount; i++) {
-        const angle = rotation + (i / rayCount) * 2 * Math.PI;
-        const rayLength = maxRayLength * (0.5 + 0.5 * Math.sin(i * 0.5));
-        const rayChar = rayChars[Math.floor(time / 500 + i) % rayChars.length];
+      ctx.font = "16px monospace";
 
-        const raySegments = Math.floor(rayLength / 12);
-        for (let j = 0; j < raySegments; j++) {
-          const distance = sunRadius + j * 12;
-          const x = centerX + Math.cos(angle) * distance;
-          const y = centerY + Math.sin(angle) * distance;
-          ctx.globalAlpha = 1 - j / raySegments;
-          ctx.fillText(rayChar, x - 6, y + 4);
+      // Draw multiple layers of rays
+      for (let layer = 0; layer < 3; layer++) {
+        const layerOffset = layer * ((2 * Math.PI) / 3);
+
+        for (let i = 0; i < rayCount; i++) {
+          const rayAngle = rotationAngle + layerOffset + (i / rayCount) * 2 * Math.PI;
+          const rayLength = maxRayLength * (0.6 + 0.4 * Math.sin(i * 0.5));
+          const rayCharIndex = Math.floor(((rayAngle + Math.PI / 4) % (2 * Math.PI)) / (Math.PI / 2)) % 4;
+          const rayChar = rayChars[rayCharIndex];
+
+          const raySegments = Math.floor(rayLength / 16);
+          for (let j = 0; j < raySegments; j++) {
+            const distance = sunRadius + j * 16;
+            ctx.globalAlpha = 1 - j / raySegments;
+            drawCharAtPolar(rayChar, rayAngle, distance, centerX, centerY);
+          }
         }
       }
 
       ctx.globalAlpha = 1;
 
-      // Dithering glow around sun
-      const ditherCount = 200;
+      // Add dithering around sun for glow effect
+      const ditherCount = 300;
       for (let i = 0; i < ditherCount; i++) {
         const angle = Math.random() * 2 * Math.PI;
-        const distance = sunRadius + Math.random() * (maxRayLength * 0.4);
-        const x = centerX + Math.cos(angle) * distance;
-        const y = centerY + Math.sin(angle) * distance;
-
-        ctx.globalAlpha = 0.3 * (1 - (distance - sunRadius) / (maxRayLength * 0.4));
-        ctx.fillText(".", x - 3, y + 3);
+        const distance = sunRadius + Math.random() * (maxRayLength * 0.6);
+        ctx.globalAlpha = 0.3 * (1 - (distance - sunRadius) / (maxRayLength * 0.6));
+        const ditherChar = Math.random() > 0.5 ? "." : ",";
+        drawCharAtPolar(ditherChar, angle, distance, centerX, centerY);
       }
 
       ctx.globalAlpha = 1;
@@ -154,28 +198,34 @@ const AsciiSky = () => {
 
     const drawMoon = (time: number) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw clouds
+      drawClouds(ctx, canvas);
+      
       ctx.fillStyle = "#cccccc";
-      t += 0.01;
 
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       const moonRadius = Math.min(canvas.width, canvas.height) * 0.18;
 
-      // Draw twinkling stars
+      // Draw twinkling stars across the entire screen
       ctx.font = "12px monospace";
       for (let i = 0; i < stars.length; i++) {
         const star = stars[i];
         const x = star.x * canvas.width;
         const y = star.y * canvas.height;
         const flicker = 0.5 + 0.5 * Math.sin(time * star.speed + star.flickerOffset);
-        ctx.globalAlpha = flicker * 0.6;
+        ctx.globalAlpha = flicker * 0.8;
         const char = starChars[(star.charIndex + Math.floor(time * 0.001)) % starChars.length];
         ctx.fillText(char, x - 6, y + 4);
       }
 
       ctx.globalAlpha = 1;
 
-      // Draw cratered moon in rings
+      // Draw crescent moon
+      const moonChars = ["@", "O", "*", "#", ".", "+", "-", "="];
+      
+      // Draw moon as crescent
       for (let r = moonRadius; r > 0; r -= 12) {
         const circumference = 2 * Math.PI * r;
         const charCount = Math.floor(circumference / 8);
@@ -184,28 +234,18 @@ const AsciiSky = () => {
 
         for (let i = 0; i < charCount; i++) {
           const angle = (i / charCount) * 2 * Math.PI;
-          const dx = Math.cos(angle + t * 0.1) * r;
-          const dy = Math.sin(angle + t * 0.1) * r;
-          ctx.fillText(char, centerX + dx - 6, centerY + dy + 4);
+          // Only draw the right half for crescent effect
+          if (angle > Math.PI * 0.3 && angle < Math.PI * 1.7) {
+            const dx = Math.cos(angle) * r;
+            const dy = Math.sin(angle) * r;
+            ctx.fillText(char, centerX + dx - 6, centerY + dy + 4);
+          }
         }
       }
 
-      // Draw moon core
+      // Draw moon center (crescent)
       ctx.font = "16px monospace";
-      ctx.fillText("O", centerX - 8, centerY + 6);
-
-      // Add crater dots
-      const craterCount = 40;
-      ctx.font = "12px monospace";
-      for (let i = 0; i < craterCount; i++) {
-        const angle = Math.random() * 2 * Math.PI;
-        const radius = Math.random() * moonRadius * 0.8;
-        const x = centerX + Math.cos(angle) * radius;
-        const y = centerY + Math.sin(angle) * radius;
-        ctx.globalAlpha = 0.2 + Math.random() * 0.2;
-        ctx.fillText(".", x - 3, y + 3);
-      }
-      ctx.globalAlpha = 1;
+      ctx.fillText(")", centerX - 4, centerY + 6);
     };
 
     const animate = (time: number) => {
@@ -220,15 +260,16 @@ const AsciiSky = () => {
     animationFrameId = requestAnimationFrame(animate);
 
     return () => {
+      window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationFrameId);
     };
   }, [isDark]);
 
   return (
-    <div className="relative">
+    <div className="fixed inset-0 pointer-events-none">
       <canvas 
         ref={canvasRef} 
-        className="block"
+        className="absolute inset-0 w-full h-full opacity-30"
         style={{
           filter: 'contrast(1.2)',
           imageRendering: 'pixelated'

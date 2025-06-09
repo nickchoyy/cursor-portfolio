@@ -11,15 +11,17 @@ const Index = () => {
     <div className="bg-background text-foreground">
       <DarkModeToggle />
       
-      {/* Hero Section - relative positioning for contact/experience */}
-      <section className="relative min-h-screen">
+      {/* Hero Section - reduced height */}
+      <section className="relative h-screen">
         <ContactInfo />
         <ExperienceList />
         <HeroCenter />
       </section>
 
-      {/* Parallax Columns Section - takes over when scrolled to */}
-      <ParallaxColumns />
+      {/* Parallax Columns Section - moved up */}
+      <section className="-mt-32 relative z-20">
+        <ParallaxColumns />
+      </section>
       
       {/* Footer */}
       <Footer />
