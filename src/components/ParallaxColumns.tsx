@@ -291,28 +291,28 @@ const ParallaxColumns = () => {
         <div className="p-6">
           <div className="flex items-start justify-between mb-3">
             <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-primary transition-colors duration-300">
-              <HackerText text={item.title} trigger={themeChangeCount > 0} />
+              <HackerText text={item.title} trigger={themeChangeCount} />
             </h3>
             {isWork && (
               <span className="text-xs font-mono text-muted-foreground ml-4 shrink-0 group-hover:text-primary/70 transition-colors duration-300">
-                <HackerText text={item.year} trigger={themeChangeCount > 0} />
+                <HackerText text={item.year} trigger={themeChangeCount} />
               </span>
             )}
           </div>
           
           {(isWork || isPlayground) && item.subtitle && (
             <p className="text-xs font-mono text-muted-foreground mb-3 leading-relaxed group-hover:text-foreground/80 transition-colors duration-300">
-              <HackerText text={item.subtitle} trigger={themeChangeCount > 0} />
+              <HackerText text={item.subtitle} trigger={themeChangeCount} />
             </p>
           )}
           
           <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed group-hover:text-foreground/90 transition-colors duration-300">
-            <HackerText text={item.description} trigger={themeChangeCount > 0} />
+            <HackerText text={item.description} trigger={themeChangeCount} />
           </p>
           
           {isPlayground && item.tech && (
             <span className="text-xs font-mono text-muted-foreground/60 mt-3 block group-hover:text-primary/60 transition-colors duration-300">
-              <HackerText text={item.tech} trigger={themeChangeCount > 0} />
+              <HackerText text={item.tech} trigger={themeChangeCount} />
             </span>
           )}
           
@@ -349,12 +349,12 @@ const ParallaxColumns = () => {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-primary transition-colors duration-300">
-                    <HackerText text={item.title} trigger={themeChangeCount > 0} />
+                    <HackerText text={item.title} trigger={themeChangeCount} />
                   </h3>
                 </div>
                 
                 <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed group-hover:text-foreground/90 transition-colors duration-300">
-                  <HackerText text={item.description} trigger={themeChangeCount > 0} />
+                  <HackerText text={item.description} trigger={themeChangeCount} />
                 </p>
                 
                 <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-primary/60 group-hover:w-12 transition-all duration-300"></div>
@@ -396,19 +396,19 @@ const ParallaxColumns = () => {
           <div className="grid grid-cols-3 gap-2 px-6 py-6">
             <div className="text-left">
               <h2 className="text-xs font-mono font-medium tracking-wide">
-                <HackerText text="About" trigger={themeChangeCount > 0} />
+                <HackerText text="About" trigger={themeChangeCount} />
               </h2>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
             <div className="text-left">
               <h2 className="text-xs font-mono font-medium tracking-wide">
-                <HackerText text="Work" trigger={themeChangeCount > 0} />
+                <HackerText text="Work" trigger={themeChangeCount} />
               </h2>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
             <div className="text-left">
               <h2 className="text-xs font-mono font-medium tracking-wide">
-                <HackerText text="Playground" trigger={themeChangeCount > 0} />
+                <HackerText text="Playground" trigger={themeChangeCount} />
               </h2>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>

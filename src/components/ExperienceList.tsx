@@ -32,14 +32,14 @@ const ExperienceList = () => {
             className="flex gap-3 text-[10px] font-mono"
           >
             <div className="text-muted-foreground min-w-[2rem] shrink-0 text-left">
-              <HackerText text={exp.year} trigger={themeChangeCount > 0} />
+              <HackerText text={exp.year} trigger={themeChangeCount} />
             </div>
             <div className="flex-1">
               <div className="font-medium leading-tight">
-                <HackerText text={exp.company} trigger={themeChangeCount > 0} />
+                <HackerText text={exp.company} trigger={themeChangeCount} />
               </div>
               <div className="text-muted-foreground leading-tight">
-                <HackerText text={exp.role} trigger={themeChangeCount > 0} />
+                <HackerText text={exp.role} trigger={themeChangeCount} />
               </div>
             </div>
           </div>
@@ -51,7 +51,7 @@ const ExperienceList = () => {
         <div className="text-[10px] font-mono leading-relaxed text-muted-foreground">
           <HackerText 
             text="Unity, C#, AI, Blender, Lens Studio, JavaScript, p5.js, SparkAR, Lightship ARDK, Oculus SDK, Python, VR, Growth, Design Systems" 
-            trigger={themeChangeCount > 0} 
+            trigger={themeChangeCount} 
           />
         </div>
       </div>

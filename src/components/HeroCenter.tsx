@@ -25,7 +25,7 @@ const HeroCenter = () => {
       {/* Minimal text around the art */}
       <div className="text-center">
         <div className="text-xs font-mono text-muted-foreground tracking-[0.2em] mb-4">
-          <HackerText text="AR/AI • DESIGNER • ARTIST • PROTOTYPER" trigger={themeChangeCount > 0} />
+          <HackerText text="AR/AI • DESIGNER • ARTIST • PROTOTYPER" trigger={themeChangeCount} />
         </div>
       </div>
     </div>

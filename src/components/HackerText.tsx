@@ -5,7 +5,7 @@ const SYMBOLS = "!@#$%^&*()_+=<>?/|~".split("");
 
 interface HackerTextProps {
   text: string;
-  trigger: string | number | boolean; // Accept changing identity
+  trigger: number; // Use numeric counter for reliable triggering
   className?: string;
 }
 
@@ -26,19 +26,15 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
       scrambleInterval = setInterval(() => {
         const scrambled = text
           .split("")
-          .map(() =>
-            Math.random() < 0.8
-              ? SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
-              : text[Math.floor(Math.random() * text.length)]
-          )
+          .map(() => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)])
           .join("");
         setDisplay(scrambled);
         frame++;
-        if (frame > 4) {
+        if (frame > 2) { // Reduced from 4 to 2 for faster animation
           clearInterval(scrambleInterval);
           resolve();
         }
-      }, 30);
+      }, 20); // Reduced from 30ms to 20ms
     };
 
     const resolve = () => {
@@ -54,9 +50,9 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
         i++;
         if (i >= text.length) {
           clearInterval(resolveInterval);
-          setTimeout(() => setDisplay(text), 100);
+          setDisplay(text); // Final reset without delay
         }
-      }, 25);
+      }, 15); // Reduced from 25ms to 15ms
     };
 
     scramble();

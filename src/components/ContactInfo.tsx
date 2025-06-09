@@ -21,7 +21,7 @@ const ContactInfo = () => {
     <div className="absolute top-8 left-8 z-50">
       <div className="text-sm font-mono">
         <div className="mb-1">
-          <HackerText text="nickchoy@berkeley.edu" trigger={themeChangeCount > 0} />
+          <HackerText text="nickchoy@berkeley.edu" trigger={themeChangeCount} />
         </div>
         <div 
           className="relative"
@@ -29,7 +29,7 @@ const ContactInfo = () => {
           onMouseLeave={() => setIsHovered(false)}
         >
           <span className="text-muted-foreground text-xs cursor-pointer">
-            <HackerText text="@nickchoy+" trigger={themeChangeCount > 0} />
+            <HackerText text="@nickchoy+" trigger={themeChangeCount} />
           </span>
           
           <div className={`absolute top-full left-0 mt-1 transition-all duration-200 ${
@@ -41,19 +41,19 @@ const ContactInfo = () => {
                   href="#" 
                   className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-background/50"
                 >
-                  <HackerText text="Resume" trigger={themeChangeCount > 0} />
+                  <HackerText text="Resume" trigger={themeChangeCount} />
                 </a>
                 <a 
                   href="#" 
                   className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-background/50"
                 >
-                  <HackerText text="Twitter" trigger={themeChangeCount > 0} />
+                  <HackerText text="Twitter" trigger={themeChangeCount} />
                 </a>
                 <a 
                   href="#" 
                   className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-background/50"
                 >
-                  <HackerText text="LinkedIn" trigger={themeChangeCount > 0} />
+                  <HackerText text="LinkedIn" trigger={themeChangeCount} />
                 </a>
               </div>
             </div>
