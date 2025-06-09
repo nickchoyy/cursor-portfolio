@@ -13,6 +13,7 @@ const ParallaxColumns = () => {
   const animationLoopId = useRef<number>();
   const isScrolling = useRef(false);
   const scrollTimeout = useRef<NodeJS.Timeout>();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -103,7 +104,7 @@ const ParallaxColumns = () => {
       }
       document.documentElement.style.scrollBehavior = '';
     };
-  }, []); // Empty dependency array to prevent re-running
+  }, [scrollY, velocity]);
 
   const aboutItems = [
     {
@@ -299,15 +300,19 @@ const ParallaxColumns = () => {
   const baseScrollThreshold = 200;
   const adjustedScrollY = Math.max(0, animatedScrollY - baseScrollThreshold);
   
-  // Simplified parallax with middle column slightly faster
-  const leftOffset = adjustedScrollY * 0.3;
-  const centerOffset = adjustedScrollY * 0.4; // Slightly faster than outer columns
-  const rightOffset = adjustedScrollY * 0.3;
+  // Enhanced parallax with significantly faster middle column
+  const leftOffset = adjustedScrollY * 0.25;
+  const centerOffset = adjustedScrollY * 0.6; // Much faster than outer columns
+  const rightOffset = adjustedScrollY * 0.25;
 
-  // Calculate progress based on total content height - complete when last project is visible
-  const totalContentHeight = Math.max(workItems.length, playgroundItems.length) * 400; // Approximate item height
-  const parallaxSectionHeight = totalContentHeight + 1000; // Add buffer for last items
-  const rawProgress = (adjustedScrollY / parallaxSectionHeight) * 100;
+  // Fixed progress calculation - tracks progress through the actual parallax section
+  const parallaxSectionStart = baseScrollThreshold;
+  const estimatedItemHeight = 350;
+  const maxItems = Math.max(workItems.length, playgroundItems.length);
+  const totalParallaxHeight = maxItems * estimatedItemHeight + 800; // Add buffer for spacing
+  
+  const parallaxProgress = Math.max(0, animatedScrollY - parallaxSectionStart);
+  const rawProgress = (parallaxProgress / totalParallaxHeight) * 100;
   const progressValue = Math.min(100, Math.max(0, rawProgress));
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
@@ -434,7 +439,7 @@ const ParallaxColumns = () => {
 
   return (
     <>
-      <div className="bg-gradient-to-br from-background via-background to-background/95 z-30">
+      <div ref={containerRef} className="bg-gradient-to-br from-background via-background to-background/95 z-30">
         {/* Enhanced smooth progress bar */}
         <div className="fixed top-0 left-0 right-0 z-50">
           <Progress 
