@@ -10,15 +10,15 @@ const experiences = [
 
 const ExperienceList = () => {
   return (
-    <div className="fixed top-6 right-6 z-50 w-80">
+    <div className="fixed top-6 right-8 z-50 w-64">
       {/* Experience Container */}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {experiences.map((exp, index) => (
           <div 
             key={index}
-            className="flex gap-4 text-xs font-mono"
+            className="flex gap-3 text-[10px] font-mono"
           >
-            <div className="text-muted-foreground min-w-[2.5rem] shrink-0">{exp.year}</div>
+            <div className="text-muted-foreground min-w-[2rem] shrink-0 text-right">{exp.year}</div>
             <div className="flex-1">
               <div className="font-medium leading-tight">{exp.company}</div>
               <div className="text-muted-foreground leading-tight">{exp.role}</div>
@@ -28,10 +28,10 @@ const ExperienceList = () => {
       </div>
 
       {/* Skills Container */}
-      <div className="mt-6">
-        <div className="text-xs font-mono leading-relaxed text-muted-foreground">
+      <div className="mt-4">
+        <div className="text-[10px] font-mono leading-relaxed text-muted-foreground">
           Unity, C#, AI, Blender, Lens Studio, JavaScript, p5.js, SparkAR, 
-          Lightship ARDK, Oculus SDK, Python, AI, VR, Growth, Design Systems
+          Lightship ARDK, Oculus SDK, Python, VR, Growth, Design Systems
         </div>
       </div>
     </div>
