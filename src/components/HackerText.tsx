@@ -12,14 +12,14 @@ interface HackerTextProps {
 const HackerText = ({ text, trigger, className }: HackerTextProps) => {
   const [display, setDisplay] = useState(text);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [lastTrigger, setLastTrigger] = useState(0);
+  const [hasTriggered, setHasTriggered] = useState(false);
 
   useEffect(() => {
     // Only trigger if we have a new trigger value and not currently animating
-    if (!trigger || isAnimating) return;
+    if (!trigger || isAnimating || hasTriggered) return;
 
     setIsAnimating(true);
-    setLastTrigger(trigger);
+    setHasTriggered(true);
     let frame = 0;
     let scrambleInterval: NodeJS.Timeout;
     let resolveInterval: NodeJS.Timeout;
@@ -58,6 +58,7 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
             setDisplay(text);
             setTimeout(() => {
               setIsAnimating(false);
+              setHasTriggered(false); // Reset for next trigger
             }, 100);
           }, 300); // Show completed text for 300ms
         }
@@ -71,7 +72,7 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
       clearInterval(resolveInterval);
       setIsAnimating(false);
     };
-  }, [trigger, text, isAnimating, lastTrigger]);
+  }, [trigger, text, isAnimating, hasTriggered]);
 
   return (
     <span className={className}>
