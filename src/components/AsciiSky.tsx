@@ -52,11 +52,11 @@ const AsciiSky = () => {
 
     let animationFrameId: number;
     let startTime: number | null = null;
-    const rotationPeriod = 12000; // 12 seconds for a full rotation
+    const rotationPeriod = 20000; // Slower rotation - 20 seconds for a full rotation
 
     // Star variables for moon
-    const starChars = [".", "+", "*"];
-    const starCount = 200;
+    const starChars = [".", "+", "*", "·"];
+    const starCount = 250;
     const stars: Array<{
       x: number;
       y: number;
@@ -64,16 +64,6 @@ const AsciiSky = () => {
       speed: number;
       charIndex: number;
       flickerOffset: number;
-    }> = [];
-
-    // Cloud variables
-    const cloudCount = 8;
-    const clouds: Array<{
-      x: number;
-      y: number;
-      speed: number;
-      size: number;
-      opacity: number;
     }> = [];
 
     // Create twinkling stars
@@ -85,17 +75,6 @@ const AsciiSky = () => {
         speed: 0.002 + Math.random() * 0.003,
         charIndex: Math.floor(Math.random() * starChars.length),
         flickerOffset: Math.random() * Math.PI * 2,
-      });
-    }
-
-    // Create clouds
-    for (let i = 0; i < cloudCount; i++) {
-      clouds.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height * 0.7 + canvas.height * 0.1, // Keep clouds in upper portion
-        speed: 0.2 + Math.random() * 0.5,
-        size: 0.8 + Math.random() * 0.4,
-        opacity: 0.3 + Math.random() * 0.4,
       });
     }
 
@@ -113,28 +92,11 @@ const AsciiSky = () => {
       ctx.fillText(char, x - fontSize / 4, y + fontSize / 4);
     };
 
-    // Function to draw a single cloud
-    const drawCloud = (x: number, y: number, size: number, opacity: number) => {
-      ctx.globalAlpha = opacity;
-      ctx.font = `${12 * size}px monospace`;
-      
-      // Cloud shape using ASCII characters
-      const cloudLines = [
-        "    .--.    ",
-        " .-(    )-.  ",
-        "(___.__)___) "
-      ];
-      
-      for (let i = 0; i < cloudLines.length; i++) {
-        ctx.fillText(cloudLines[i], x, y + i * 12 * size);
-      }
-    };
-
     const drawSun = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
       const elapsed = timestamp - startTime;
 
-      // Calculate rotation angle
+      // Calculate rotation angle - slower rotation
       const rotationAngle = ((elapsed % rotationPeriod) / rotationPeriod) * 2 * Math.PI;
       const coreRotationAngle = ((elapsed % (rotationPeriod / 3)) / (rotationPeriod / 3)) * 2 * Math.PI; // Core spins faster
 
@@ -151,8 +113,8 @@ const AsciiSky = () => {
       const sunCoreChars = ["@", "O", "0", "*", "=", "+"];
       const rayChars = ["|", "/", "-", "\\"];
 
-      // Draw sun core with separate rotation
-      const sunRadius = Math.min(canvas.width, canvas.height) * 0.15;
+      // Draw sun core with separate rotation - smaller size
+      const sunRadius = Math.min(canvas.width, canvas.height) * 0.12; // Reduced from 0.15
 
       // Draw concentric rings for sun core with core rotation
       for (let r = 0; r < sunRadius; r += 16) {
@@ -174,9 +136,9 @@ const AsciiSky = () => {
       const centerChar = sunCoreChars[Math.floor((coreRotationAngle / (Math.PI / 4)) % sunCoreChars.length)];
       ctx.fillText(centerChar, centerX - 8, centerY + 8);
 
-      // Draw rotating rays with balanced opacity
+      // Draw rotating rays with balanced opacity - smaller rays
       const rayCount = 24;
-      const maxRayLength = Math.min(canvas.width, canvas.height) * 0.4;
+      const maxRayLength = Math.min(canvas.width, canvas.height) * 0.35; // Reduced from 0.4
 
       ctx.font = "16px monospace";
 
@@ -193,7 +155,7 @@ const AsciiSky = () => {
           const raySegments = Math.floor(rayLength / 16);
           for (let j = 0; j < raySegments; j++) {
             const distance = sunRadius + j * 16;
-            // Balanced opacity - remove the uneven fading
+            // Balanced opacity
             ctx.globalAlpha = Math.max(0.3, 1 - j / raySegments);
             drawCharAtPolar(rayChar, rayAngle, distance, centerX, centerY);
           }
@@ -202,29 +164,14 @@ const AsciiSky = () => {
 
       ctx.globalAlpha = 1;
 
-      // Add dithering around sun for glow effect
-      const ditherCount = 300;
+      // Add dithering around sun for glow effect - smaller glow
+      const ditherCount = 250; // Reduced from 300
       for (let i = 0; i < ditherCount; i++) {
         const angle = Math.random() * 2 * Math.PI;
-        const distance = sunRadius + Math.random() * (maxRayLength * 0.6);
-        ctx.globalAlpha = 0.3 * (1 - (distance - sunRadius) / (maxRayLength * 0.6));
+        const distance = sunRadius + Math.random() * (maxRayLength * 0.5); // Reduced glow area
+        ctx.globalAlpha = 0.3 * (1 - (distance - sunRadius) / (maxRayLength * 0.5));
         const ditherChar = Math.random() > 0.5 ? "." : ",";
         drawCharAtPolar(ditherChar, angle, distance, centerX, centerY);
-      }
-
-      // Draw animated clouds
-      ctx.fillStyle = "#666666";
-      for (let i = 0; i < clouds.length; i++) {
-        const cloud = clouds[i];
-        
-        // Move cloud
-        cloud.x += cloud.speed;
-        if (cloud.x > canvas.width + 100) {
-          cloud.x = -100;
-          cloud.y = Math.random() * canvas.height * 0.7 + canvas.height * 0.1;
-        }
-        
-        drawCloud(cloud.x, cloud.y, cloud.size, cloud.opacity);
       }
 
       ctx.globalAlpha = 1;
@@ -244,15 +191,15 @@ const AsciiSky = () => {
       const moonRadius = Math.min(canvas.width, canvas.height) * 0.18;
 
       // Draw twinkling stars across the entire screen - more visible
-      ctx.font = "14px monospace";
+      ctx.font = "16px monospace";
       for (let i = 0; i < stars.length; i++) {
         const star = stars[i];
         const x = star.x * canvas.width;
         const y = star.y * canvas.height;
-        const flicker = 0.7 + 0.3 * Math.sin(time * star.speed + star.flickerOffset);
+        const flicker = 0.8 + 0.2 * Math.sin(time * star.speed + star.flickerOffset);
         ctx.globalAlpha = flicker;
         const char = starChars[(star.charIndex + Math.floor(time * 0.001)) % starChars.length];
-        ctx.fillText(char, x - 6, y + 4);
+        ctx.fillText(char, x - 8, y + 8);
       }
 
       ctx.globalAlpha = 1;
@@ -278,21 +225,6 @@ const AsciiSky = () => {
       // Draw moon center
       ctx.font = "16px monospace";
       ctx.fillText("O", centerX - 4, centerY + 6);
-
-      // Draw animated clouds in dark mode too
-      ctx.fillStyle = "#888888";
-      for (let i = 0; i < clouds.length; i++) {
-        const cloud = clouds[i];
-        
-        // Move cloud
-        cloud.x += cloud.speed * 0.5; // Slower in dark mode
-        if (cloud.x > canvas.width + 100) {
-          cloud.x = -100;
-          cloud.y = Math.random() * canvas.height * 0.7 + canvas.height * 0.1;
-        }
-        
-        drawCloud(cloud.x, cloud.y, cloud.size, cloud.opacity * 0.6); // More subtle in dark mode
-      }
 
       ctx.globalAlpha = 1;
     };
