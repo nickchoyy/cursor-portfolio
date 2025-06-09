@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { Progress } from './ui/progress';
 
@@ -211,24 +212,25 @@ const ParallaxColumns = () => {
   const baseScrollThreshold = 200;
   const adjustedScrollY = Math.max(0, scrollY - baseScrollThreshold);
   
-  // Adjusted parallax speeds - middle column slower than outer columns
+  // Middle column moves slower than outer columns
   const leftOffset = adjustedScrollY * 0.4;
   const centerOffset = adjustedScrollY * 0.2; // Slower than outer columns
   const rightOffset = adjustedScrollY * 0.4;
 
-  // Progress calculation based on rightmost (playground) column only
+  // Fixed progress calculation - only track when actually in parallax section
   const parallaxSectionStart = baseScrollThreshold;
-  const estimatedItemHeight = 350;
+  const estimatedItemHeight = 400;
   const playgroundItemsCount = playgroundItems.length;
-  const totalPlaygroundHeight = playgroundItemsCount * estimatedItemHeight + 800; // Add buffer for spacing
+  const totalPlaygroundHeight = playgroundItemsCount * estimatedItemHeight;
   
-  const parallaxProgress = Math.max(0, scrollY - parallaxSectionStart);
-  const rawProgress = (parallaxProgress / totalPlaygroundHeight) * 100;
-  const progressValue = Math.min(100, Math.max(0, rawProgress));
+  // Only calculate progress when past the threshold
+  const progressValue = scrollY >= parallaxSectionStart 
+    ? Math.min(100, Math.max(0, ((scrollY - parallaxSectionStart) / totalPlaygroundHeight) * 100))
+    : 0;
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
     <div className={`group cursor-pointer transition-all duration-300 ${isWork || isPlayground ? 'opacity-80 hover:opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-      <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 hover:bg-background/60 hover:border-border/40 overflow-hidden">
+      <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 group-hover:bg-background/60 group-hover:border-border/40 overflow-hidden">
         {item.image && !item.isProfile && (
           <div className="aspect-[4/3] overflow-hidden">
             <img 
