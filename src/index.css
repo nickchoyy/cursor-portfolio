@@ -164,4 +164,18 @@
   .text-balance {
     text-wrap: balance;
   }
+  
+  /* Dark mode transition */
+  @keyframes slide-in-right {
+    0% { 
+      transform: translateX(-100%); 
+    }
+    100% { 
+      transform: translateX(100%); 
+    }
+  }
+  
+  .animate-slide-in-right {
+    animation: slide-in-right 0.8s ease-in-out;
+  }
 }

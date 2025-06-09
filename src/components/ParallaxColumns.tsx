@@ -1,14 +1,22 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { Progress } from './ui/progress';
 
 const ParallaxColumns = () => {
   const [scrollY, setScrollY] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [headerAtTop, setHeaderAtTop] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrollY(window.scrollY);
+      const currentScrollY = window.scrollY;
+      setScrollY(currentScrollY);
+      
+      // Check if header is at top of viewport
+      if (headerRef.current) {
+        const headerRect = headerRef.current.getBoundingClientRect();
+        setHeaderAtTop(headerRect.top <= 0);
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -212,10 +220,11 @@ const ParallaxColumns = () => {
   const baseScrollThreshold = 200;
   const adjustedScrollY = Math.max(0, scrollY - baseScrollThreshold);
   
-  // Middle column moves slower than outer columns
-  const leftOffset = adjustedScrollY * 0.4;
-  const centerOffset = adjustedScrollY * 0.2; // Slower than outer columns
-  const rightOffset = adjustedScrollY * 0.4;
+  // Only move columns when header is at top
+  const parallaxMultiplier = headerAtTop ? 1 : 0;
+  const leftOffset = adjustedScrollY * 0.4 * parallaxMultiplier;
+  const centerOffset = adjustedScrollY * 0.2 * parallaxMultiplier; // Slower than outer columns
+  const rightOffset = adjustedScrollY * 0.4 * parallaxMultiplier;
 
   // Fixed progress calculation - only track when actually in parallax section
   const parallaxSectionStart = baseScrollThreshold;
@@ -360,7 +369,7 @@ const ParallaxColumns = () => {
           />
         </div>
 
-        <div className="sticky top-0 bg-background/80 backdrop-blur-md border-b border-border/20 z-40">
+        <div ref={headerRef} className="sticky top-0 bg-background/80 backdrop-blur-md border-b border-border/20 z-40">
           <div className="grid grid-cols-3 gap-2 px-6 py-6">
             <div className="text-left">
               <h2 className="text-xs font-mono font-medium tracking-wide">About</h2>
