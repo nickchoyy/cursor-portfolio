@@ -56,7 +56,7 @@ const AsciiSky = () => {
 
     // Star variables for moon
     const starChars = [".", "+", "*"];
-    const starCount = 150;
+    const starCount = 200;
     const stars: Array<{
       x: number;
       y: number;
@@ -77,25 +77,6 @@ const AsciiSky = () => {
         flickerOffset: Math.random() * Math.PI * 2,
       });
     }
-
-    // Cloud drawing functions
-    const drawClouds = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
-      const cloudCount = 8;
-      ctx.fillStyle = isDark ? "#555555" : "#cccccc";
-
-      for (let i = 0; i < cloudCount; i++) {
-        const x = (i / cloudCount) * canvas.width + Math.sin(Date.now() * 0.0001 + i) * 50;
-        const y = canvas.height * (0.2 + 0.3 * Math.sin(i));
-        drawCloud(ctx, x, y);
-      }
-    };
-
-    const drawCloud = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
-      ctx.font = "12px monospace";
-      ctx.fillText("     .--.     ", x, y);
-      ctx.fillText("  .-(    ).   ", x, y + 12);
-      ctx.fillText(" (___.__)__)  ", x, y + 24);
-    };
 
     // Function to draw a character at a specific angle and distance from center
     const drawCharAtPolar = (
@@ -121,10 +102,7 @@ const AsciiSky = () => {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Draw clouds first
-      drawClouds(ctx, canvas);
-      
-      ctx.fillStyle = isDark ? "#333333" : "#ffcc66";
+      ctx.fillStyle = "#ffffff";
 
       // Calculate center of canvas
       const centerX = canvas.width / 2;
@@ -197,10 +175,11 @@ const AsciiSky = () => {
     };
 
     const drawMoon = (time: number) => {
+      if (!startTime) startTime = time;
+      const elapsed = time - startTime;
+      const rotationAngle = ((elapsed % rotationPeriod) / rotationPeriod) * 2 * Math.PI;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw clouds
-      drawClouds(ctx, canvas);
       
       ctx.fillStyle = "#cccccc";
 
@@ -222,10 +201,10 @@ const AsciiSky = () => {
 
       ctx.globalAlpha = 1;
 
-      // Draw crescent moon
+      // Draw full moon with rotation
       const moonChars = ["@", "O", "*", "#", ".", "+", "-", "="];
       
-      // Draw moon as crescent
+      // Draw full circle moon
       for (let r = moonRadius; r > 0; r -= 12) {
         const circumference = 2 * Math.PI * r;
         const charCount = Math.floor(circumference / 8);
@@ -233,19 +212,16 @@ const AsciiSky = () => {
         const char = moonChars[charIndex];
 
         for (let i = 0; i < charCount; i++) {
-          const angle = (i / charCount) * 2 * Math.PI;
-          // Only draw the right half for crescent effect
-          if (angle > Math.PI * 0.3 && angle < Math.PI * 1.7) {
-            const dx = Math.cos(angle) * r;
-            const dy = Math.sin(angle) * r;
-            ctx.fillText(char, centerX + dx - 6, centerY + dy + 4);
-          }
+          const angle = (i / charCount) * 2 * Math.PI + rotationAngle * 0.3;
+          const dx = Math.cos(angle) * r;
+          const dy = Math.sin(angle) * r;
+          ctx.fillText(char, centerX + dx - 6, centerY + dy + 4);
         }
       }
 
-      // Draw moon center (crescent)
+      // Draw moon center
       ctx.font = "16px monospace";
-      ctx.fillText(")", centerX - 4, centerY + 6);
+      ctx.fillText("O", centerX - 4, centerY + 6);
     };
 
     const animate = (time: number) => {

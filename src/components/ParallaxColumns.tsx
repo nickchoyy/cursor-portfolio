@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 
 const ParallaxColumns = () => {
@@ -97,14 +96,14 @@ const ParallaxColumns = () => {
   const rightOffset = adjustedScrollY * 0.2;
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
-    <div className="group cursor-pointer opacity-30 hover:opacity-100 transition-opacity duration-300">
+    <div className="group cursor-pointer opacity-70 hover:opacity-100 transition-opacity duration-300">
       <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 hover:bg-background/60 hover:border-border/40 overflow-hidden">
         {item.image && !item.isProfile && (
           <div className="aspect-[4/3] overflow-hidden">
             <img 
               src={item.image} 
               alt={item.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
             />
           </div>
         )}
@@ -114,7 +113,7 @@ const ParallaxColumns = () => {
             <img 
               src={item.image} 
               alt={item.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
             />
           </div>
         )}
