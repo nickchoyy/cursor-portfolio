@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 
 const ParallaxColumns = () => {
@@ -90,8 +89,8 @@ const ParallaxColumns = () => {
     }
   ];
 
-  // Modified parallax calculations - columns move to top first, then content scrolls within
-  const baseScrollThreshold = 200; // Amount to scroll before content starts moving
+  // Adjusted parallax calculations - ensure titles reach top before content starts scrolling
+  const baseScrollThreshold = 400; // Increased threshold so titles reach top first
   const adjustedScrollY = Math.max(0, scrollY - baseScrollThreshold);
   
   const leftOffset = adjustedScrollY * 0.2;

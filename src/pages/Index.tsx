@@ -18,8 +18,8 @@ const Index = () => {
       {/* Parallax Columns Section - takes over when scrolled to */}
       <ParallaxColumns />
       
-      {/* Additional height for scrolling content */}
-      <div className="h-[300vh]"></div>
+      {/* Reduced height for scrolling content */}
+      <div className="h-[200vh]"></div>
       
       {/* Footer */}
       <Footer />

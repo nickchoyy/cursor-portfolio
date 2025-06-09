@@ -10,7 +10,7 @@ const experiences = [
 
 const ExperienceList = () => {
   return (
-    <div className="fixed top-6 right-8 z-50 w-64">
+    <div className="absolute top-6 right-8 w-64">
       {/* Experience Container */}
       <div className="space-y-1.5">
         {experiences.map((exp, index) => (
