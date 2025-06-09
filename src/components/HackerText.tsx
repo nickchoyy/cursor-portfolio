@@ -1,25 +1,23 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 const SYMBOLS = "!@#$%^&*()_+=<>?/|~".split("");
 
 interface HackerTextProps {
   text: string;
-  trigger: boolean;
+  trigger: string | number | boolean; // Accept changing identity
   className?: string;
 }
 
 const HackerText = ({ text, trigger, className }: HackerTextProps) => {
   const [display, setDisplay] = useState(text);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [hasTriggered, setHasTriggered] = useState(false);
+  const previousTrigger = useRef(trigger);
 
   useEffect(() => {
-    // Only trigger if we have a new trigger value and not currently animating
-    if (!trigger || isAnimating || hasTriggered) return;
+    // Only trigger if the trigger value has actually changed
+    if (previousTrigger.current === trigger) return;
+    previousTrigger.current = trigger;
 
-    setIsAnimating(true);
-    setHasTriggered(true);
     let frame = 0;
     let scrambleInterval: NodeJS.Timeout;
     let resolveInterval: NodeJS.Timeout;
@@ -28,22 +26,25 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
       scrambleInterval = setInterval(() => {
         const scrambled = text
           .split("")
-          .map((char, i) => (Math.random() < 0.7 ? SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)] : char))
+          .map(() =>
+            Math.random() < 0.8
+              ? SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
+              : text[Math.floor(Math.random() * text.length)]
+          )
           .join("");
         setDisplay(scrambled);
         frame++;
-        if (frame > 3) { // Quick scramble
+        if (frame > 4) {
           clearInterval(scrambleInterval);
           resolve();
         }
-      }, 30); // Scrambling speed
+      }, 30);
     };
 
     const resolve = () => {
-      let resolved = "";
       let i = 0;
       resolveInterval = setInterval(() => {
-        resolved = text.slice(0, i + 1);
+        const resolved = text.slice(0, i + 1);
         const remaining = text
           .slice(i + 1)
           .split("")
@@ -53,16 +54,9 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
         i++;
         if (i >= text.length) {
           clearInterval(resolveInterval);
-          // Show the resolved text for a moment, then return to normal
-          setTimeout(() => {
-            setDisplay(text);
-            setTimeout(() => {
-              setIsAnimating(false);
-              setHasTriggered(false); // Reset for next trigger
-            }, 100);
-          }, 300); // Show completed text for 300ms
+          setTimeout(() => setDisplay(text), 100);
         }
-      }, 25); // Resolution speed
+      }, 25);
     };
 
     scramble();
@@ -70,15 +64,10 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
     return () => {
       clearInterval(scrambleInterval);
       clearInterval(resolveInterval);
-      setIsAnimating(false);
     };
-  }, [trigger, text, isAnimating, hasTriggered]);
+  }, [trigger, text]);
 
-  return (
-    <span className={className}>
-      {display}
-    </span>
-  );
+  return <span className={className}>{display}</span>;
 };
 
 export default HackerText;
