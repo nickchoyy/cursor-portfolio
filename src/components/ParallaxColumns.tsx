@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Progress } from './ui/progress';
+import HackerText from './HackerText';
 
 const ParallaxColumns = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -8,6 +9,17 @@ const ParallaxColumns = () => {
   const [headerAtTop, setHeaderAtTop] = useState(false);
   const [parallaxStartY, setParallaxStartY] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [themeChangeCount, setThemeChangeCount] = useState(0);
+
+  // Listen for theme changes
+  useEffect(() => {
+    const handleThemeChange = (event: CustomEvent) => {
+      setThemeChangeCount(event.detail);
+    };
+
+    window.addEventListener('themeChange', handleThemeChange as EventListener);
+    return () => window.removeEventListener('themeChange', handleThemeChange as EventListener);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -279,28 +291,28 @@ const ParallaxColumns = () => {
         <div className="p-6">
           <div className="flex items-start justify-between mb-3">
             <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-primary transition-colors duration-300">
-              {item.title}
+              <HackerText text={item.title} trigger={themeChangeCount > 0} />
             </h3>
             {isWork && (
               <span className="text-xs font-mono text-muted-foreground ml-4 shrink-0 group-hover:text-primary/70 transition-colors duration-300">
-                {item.year}
+                <HackerText text={item.year} trigger={themeChangeCount > 0} />
               </span>
             )}
           </div>
           
           {(isWork || isPlayground) && item.subtitle && (
             <p className="text-xs font-mono text-muted-foreground mb-3 leading-relaxed group-hover:text-foreground/80 transition-colors duration-300">
-              {item.subtitle}
+              <HackerText text={item.subtitle} trigger={themeChangeCount > 0} />
             </p>
           )}
           
           <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed group-hover:text-foreground/90 transition-colors duration-300">
-            {item.description}
+            <HackerText text={item.description} trigger={themeChangeCount > 0} />
           </p>
           
           {isPlayground && item.tech && (
             <span className="text-xs font-mono text-muted-foreground/60 mt-3 block group-hover:text-primary/60 transition-colors duration-300">
-              {item.tech}
+              <HackerText text={item.tech} trigger={themeChangeCount > 0} />
             </span>
           )}
           
@@ -337,12 +349,12 @@ const ParallaxColumns = () => {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-xs font-mono font-medium leading-tight group-hover:text-primary transition-colors duration-300">
-                    {item.title}
+                    <HackerText text={item.title} trigger={themeChangeCount > 0} />
                   </h3>
                 </div>
                 
                 <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed group-hover:text-foreground/90 transition-colors duration-300">
-                  {item.description}
+                  <HackerText text={item.description} trigger={themeChangeCount > 0} />
                 </p>
                 
                 <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-primary/60 group-hover:w-12 transition-all duration-300"></div>
@@ -383,15 +395,21 @@ const ParallaxColumns = () => {
         <div ref={headerRef} className="sticky top-0 bg-background/80 backdrop-blur-md border-b border-border/20 z-40">
           <div className="grid grid-cols-3 gap-2 px-6 py-6">
             <div className="text-left">
-              <h2 className="text-xs font-mono font-medium tracking-wide">About</h2>
+              <h2 className="text-xs font-mono font-medium tracking-wide">
+                <HackerText text="About" trigger={themeChangeCount > 0} />
+              </h2>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
             <div className="text-left">
-              <h2 className="text-xs font-mono font-medium tracking-wide">Work</h2>
+              <h2 className="text-xs font-mono font-medium tracking-wide">
+                <HackerText text="Work" trigger={themeChangeCount > 0} />
+              </h2>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
             <div className="text-left">
-              <h2 className="text-xs font-mono font-medium tracking-wide">Playground</h2>
+              <h2 className="text-xs font-mono font-medium tracking-wide">
+                <HackerText text="Playground" trigger={themeChangeCount > 0} />
+              </h2>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
           </div>

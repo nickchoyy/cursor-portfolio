@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 
 const DarkModeTransition = () => {
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [themeChangeCount, setThemeChangeCount] = useState(0);
 
   useEffect(() => {
     const observer = new MutationObserver((mutations) => {
@@ -10,8 +10,8 @@ const DarkModeTransition = () => {
         if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
           const target = mutation.target as HTMLElement;
           if (target.classList.contains('dark') || !target.classList.contains('dark')) {
-            setIsTransitioning(true);
-            setTimeout(() => setIsTransitioning(false), 800); // Longer transition for rebuild effect
+            // Increment counter to trigger text scrambling
+            setThemeChangeCount(prev => prev + 1);
           }
         }
       });
@@ -25,13 +25,14 @@ const DarkModeTransition = () => {
     return () => observer.disconnect();
   }, []);
 
-  if (!isTransitioning) return null;
+  // Store the theme change count in a global variable so other components can access it
+  useEffect(() => {
+    (window as any).themeChangeCount = themeChangeCount;
+    // Dispatch custom event for components to listen to
+    window.dispatchEvent(new CustomEvent('themeChange', { detail: themeChangeCount }));
+  }, [themeChangeCount]);
 
-  return (
-    <div className="fixed inset-0 z-[9999] pointer-events-none">
-      <div className="absolute inset-0 bg-background animate-[command-rebuild_0.8s_ease-in-out]"></div>
-    </div>
-  );
+  return null; // No visual overlay needed
 };
 
 export default DarkModeTransition;
