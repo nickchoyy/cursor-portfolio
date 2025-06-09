@@ -4,12 +4,23 @@ import { Progress } from './ui/progress';
 const ParallaxColumns = () => {
   const [scrollY, setScrollY] = useState(0);
   const [velocity, setVelocity] = useState(0);
+  const [momentum, setMomentum] = useState(0);
   const lastScrollY = useRef(0);
   const lastTimestamp = useRef(0);
   const rafId = useRef<number>();
+  const momentumRafId = useRef<number>();
+  const isScrolling = useRef(false);
+  const scrollTimeout = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     const handleScroll = () => {
+      isScrolling.current = true;
+      
+      // Clear existing timeout
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
+
       if (rafId.current) {
         cancelAnimationFrame(rafId.current);
       }
@@ -28,10 +39,37 @@ const ParallaxColumns = () => {
         lastScrollY.current = currentScrollY;
         lastTimestamp.current = timestamp;
       });
+
+      // Detect when scrolling stops and apply momentum
+      scrollTimeout.current = setTimeout(() => {
+        isScrolling.current = false;
+        applyMomentum();
+      }, 50);
+    };
+
+    const applyMomentum = () => {
+      let currentMomentum = velocity * 0.3; // Initial momentum based on velocity
+      const decay = 0.95; // Momentum decay factor
+      
+      const animateMomentum = () => {
+        if (Math.abs(currentMomentum) > 0.1) {
+          setMomentum(currentMomentum);
+          currentMomentum *= decay;
+          momentumRafId.current = requestAnimationFrame(animateMomentum);
+        } else {
+          setMomentum(0);
+        }
+      };
+
+      if (momentumRafId.current) {
+        cancelAnimationFrame(momentumRafId.current);
+      }
+      
+      animateMomentum();
     };
 
     // Add smooth scroll behavior to html
-    document.documentElement.style.scrollBehavior = 'smooth';
+    document.documentElement.style.scrollBehavior = 'auto'; // Changed from 'smooth' for better physics
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     
@@ -40,9 +78,15 @@ const ParallaxColumns = () => {
       if (rafId.current) {
         cancelAnimationFrame(rafId.current);
       }
+      if (momentumRafId.current) {
+        cancelAnimationFrame(momentumRafId.current);
+      }
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
       document.documentElement.style.scrollBehavior = '';
     };
-  }, []);
+  }, [velocity]);
 
   const aboutItems = [
     {
@@ -117,6 +161,34 @@ const ParallaxColumns = () => {
       description: 'Biotechnology data visualization',
       year: '2022',
       image: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=400&h=250&fit=crop'
+    },
+    {
+      title: 'Autonomous Vehicles',
+      subtitle: 'Car Interface',
+      description: 'Self-driving car UI/UX design',
+      year: '2024',
+      image: 'https://images.unsplash.com/photo-1549924231-f129b911e442?w=400&h=300&fit=crop'
+    },
+    {
+      title: 'Smart City Platform',
+      subtitle: 'Urban Tech',
+      description: 'IoT city management systems',
+      year: '23-24',
+      image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1f?w=400&h=280&fit=crop'
+    },
+    {
+      title: 'Blockchain Analytics',
+      subtitle: 'Crypto Interface',
+      description: 'DeFi protocol visualization',
+      year: '2023',
+      image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=300&fit=crop'
+    },
+    {
+      title: 'Climate Monitoring',
+      subtitle: 'Environmental',
+      description: 'Climate data visualization tools',
+      year: '22-23',
+      image: 'https://images.unsplash.com/photo-1569163139394-de4e4f43e4e3?w=400&h=250&fit=crop'
     }
   ];
 
@@ -176,25 +248,55 @@ const ParallaxColumns = () => {
       description: 'Real-time audio reactive visuals',
       tech: 'Web Audio API',
       image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=320&fit=crop'
+    },
+    {
+      title: 'Holographic Displays',
+      subtitle: 'Future Tech',
+      description: 'Hologram interface prototypes',
+      tech: 'Unity, Hololens',
+      image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=300&fit=crop'
+    },
+    {
+      title: 'Brain-Computer Interface',
+      subtitle: 'Neurotechnology',
+      description: 'Mind-controlled interfaces',
+      tech: 'EEG, Python',
+      image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=280&fit=crop'
+    },
+    {
+      title: 'Gesture Recognition',
+      subtitle: 'Computer Vision',
+      description: 'Hand tracking for interfaces',
+      tech: 'OpenCV, MediaPipe',
+      image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=250&fit=crop'
+    },
+    {
+      title: 'Digital Twins',
+      subtitle: 'IoT Visualization',
+      description: 'Real-time 3D city models',
+      tech: 'Three.js, IoT',
+      image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=320&fit=crop'
     }
   ];
 
   const baseScrollThreshold = 200;
   const adjustedScrollY = Math.max(0, scrollY - baseScrollThreshold);
   
-  // Add velocity-based easing to parallax offsets
-  const velocityDamping = Math.min(Math.abs(velocity) / 100, 1);
-  const leftOffset = adjustedScrollY * (0.2 + velocityDamping * 0.1);
-  const centerOffset = adjustedScrollY * (0.5 + velocityDamping * 0.15);
-  const rightOffset = adjustedScrollY * (0.2 + velocityDamping * 0.1);
+  // Enhanced velocity-based parallax with momentum
+  const combinedVelocity = velocity + momentum;
+  const velocityDamping = Math.min(Math.abs(combinedVelocity) / 200, 0.5);
+  const leftOffset = adjustedScrollY * (0.2 + velocityDamping);
+  const centerOffset = adjustedScrollY * (0.5 + velocityDamping * 0.3);
+  const rightOffset = adjustedScrollY * (0.2 + velocityDamping);
 
-  // Calculate progress with smoother interpolation
-  const parallaxSectionHeight = 4000;
+  // Calculate progress based on total content height - complete when last project is visible
+  const totalContentHeight = Math.max(workItems.length, playgroundItems.length) * 400; // Approximate item height
+  const parallaxSectionHeight = totalContentHeight + 1000; // Add buffer for last items
   const rawProgress = (adjustedScrollY / parallaxSectionHeight) * 100;
   const progressValue = Math.min(100, Math.max(0, rawProgress));
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
-    <div className={`group cursor-pointer transition-opacity duration-300 ${isWork || isPlayground ? 'opacity-85 hover:opacity-100' : 'opacity-70 hover:opacity-100'}`}>
+    <div className={`group cursor-pointer transition-opacity duration-300 ${isWork || isPlayground ? 'opacity-90 hover:opacity-100' : 'opacity-70 hover:opacity-100'}`}>
       <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-300 hover:bg-background/60 hover:border-border/40 overflow-hidden">
         {item.image && !item.isProfile && (
           <div className="aspect-[4/3] overflow-hidden">
@@ -318,11 +420,14 @@ const ParallaxColumns = () => {
   return (
     <>
       <div className="bg-gradient-to-br from-background via-background to-background/95 z-30">
-        {/* Smooth progress bar */}
+        {/* Enhanced smooth progress bar */}
         <div className="fixed top-0 left-0 right-0 z-50">
           <Progress 
             value={progressValue} 
-            className="h-1 rounded-none bg-background/20 transition-all duration-150 ease-out" 
+            className="h-1 rounded-none bg-background/20" 
+            style={{
+              transition: 'all 0.1s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
           />
         </div>
 
