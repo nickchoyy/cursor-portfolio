@@ -2,20 +2,114 @@
 import React from 'react';
 
 const HeroCenter = () => {
+  const [isDark, setIsDark] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark' || 
+             (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+    return false;
+  });
+
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      setIsDark(localStorage.getItem('theme') === 'dark');
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for manual theme changes
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      observer.disconnect();
+    };
+  }, []);
+
+  const moonAscii = [
+    "       ███████       ",
+    "     ███████████     ",
+    "   ███████████████   ",
+    "  █████████████████  ",
+    " ███████████████████ ",
+    "█████████████████████",
+    "█████████████████████",
+    "█████████████████████",
+    "█████████████████████",
+    " ███████████████████ ",
+    "  █████████████████  ",
+    "   ███████████████   ",
+    "     ███████████     ",
+    "       ███████       "
+  ];
+
+  const sunAscii = [
+    "    \\   |   /    ",
+    "     \\  |  /     ",
+    "  -   ███████   - ",
+    " --  ███████████  --",
+    "/   ███████████████  \\",
+    "|  █████████████████  |",
+    "   █████████████████   ",
+    "-- █████████████████ --",
+    "   █████████████████   ",
+    "|  █████████████████  |",
+    "\\   ███████████████  /",
+    " --  ███████████  --",
+    "  -   ███████   - ",
+    "     /  |  \\     ",
+    "    /   |   \\    "
+  ];
+
+  const currentAscii = isDark ? moonAscii : sunAscii;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      {/* Central rotating element */}
+      {/* Dithered 3D ASCII Art */}
       <div className="relative mb-8">
-        <div className="w-48 h-48 rounded-full border border-foreground/20 flex items-center justify-center relative">
-          <div className="w-32 h-32 rounded-full bg-foreground/10 animate-rotate relative">
-            <div className="absolute top-4 left-1/2 w-2 h-2 bg-foreground rounded-full -translate-x-1/2"></div>
-            <div className="absolute bottom-4 left-1/2 w-1 h-1 bg-foreground/60 rounded-full -translate-x-1/2"></div>
-          </div>
-          {/* Text around the circle */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-xs font-mono text-muted-foreground tracking-[0.2em] transform -rotate-12">
-              AR/AI • DESIGNER • ARTIST • PROTOTYPER •
+        <div className="font-mono text-xs leading-tight text-center select-none">
+          <div className="relative">
+            {/* Main ASCII art */}
+            <div className="relative z-10">
+              {currentAscii.map((line, index) => (
+                <div 
+                  key={index} 
+                  className="whitespace-pre text-foreground/80"
+                  style={{
+                    filter: 'contrast(1.2)',
+                    textShadow: isDark 
+                      ? '1px 1px 2px rgba(255, 255, 255, 0.1), -1px -1px 2px rgba(0, 0, 0, 0.5)'
+                      : '1px 1px 2px rgba(0, 0, 0, 0.2), -1px -1px 1px rgba(255, 255, 255, 0.8)'
+                  }}
+                >
+                  {line}
+                </div>
+              ))}
             </div>
+            
+            {/* Dithered shadow/depth effect */}
+            <div className="absolute top-1 left-1 z-0 opacity-30">
+              {currentAscii.map((line, index) => (
+                <div 
+                  key={index} 
+                  className="whitespace-pre text-foreground/20"
+                >
+                  {line}
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Text around the art */}
+          <div className="mt-4 text-xs font-mono text-muted-foreground tracking-[0.2em]">
+            AR/AI • DESIGNER • ARTIST • PROTOTYPER
           </div>
         </div>
       </div>
