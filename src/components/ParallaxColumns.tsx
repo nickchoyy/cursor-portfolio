@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 
 const ParallaxColumns = () => {
@@ -10,14 +11,16 @@ const ParallaxColumns = () => {
   }, []);
 
   const aboutItems = [
-    'AR/AI Designer with 8+ years experience',
-    'Specialized in immersive experiences',
-    'Unity & C# development',
-    'Creative technologist',
-    'Based in Los Angeles, CA',
-    'Expert in spatial computing',
-    'Design systems architect',
-    'User research specialist'
+    {
+      title: 'Profile Image',
+      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=500&fit=crop',
+      description: 'AR/AI Designer with 8+ years experience in immersive experiences and creative technology'
+    },
+    {
+      title: 'Skills & Expertise',
+      image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop',
+      description: 'Unity, C#, AI, Blender, Lens Studio, JavaScript, p5.js, SparkAR, Lightship ARDK'
+    }
   ];
 
   const workItems = [
@@ -25,37 +28,22 @@ const ParallaxColumns = () => {
       title: 'Meta Reality Labs',
       subtitle: 'AR Platform Experience',
       description: 'Led AR interface design for next-generation social experiences using Unity and C#',
-      year: '2024'
+      year: '2024',
+      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop'
     },
     {
       title: 'PlaybookXR',
       subtitle: 'VR Training Solutions',
       description: 'Designed immersive VR training experiences with AI-powered adaptive learning',
-      year: '23-24'
+      year: '23-24',
+      image: 'https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=250&fit=crop'
     },
     {
       title: 'Wondr Studio',
       subtitle: 'Design System Architecture',
       description: 'Built comprehensive design systems and visual identity for digital products',
-      year: '22-23'
-    },
-    {
-      title: 'Vertiigo',
-      subtitle: 'Browser Extension UX',
-      description: 'Crafted seamless browser extension interfaces with focus on user workflow',
-      year: '21-22'
-    },
-    {
-      title: 'ZOE Health',
-      subtitle: 'Growth & User Research',
-      description: 'Optimized health app experience through data-driven UX research and testing',
-      year: '2021'
-    },
-    {
-      title: 'Kiwi.com',
-      subtitle: 'Travel Platform Mobile',
-      description: 'Enhanced mobile travel booking experience with growth-focused design strategies',
-      year: '20-21'
+      year: '22-23',
+      image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop'
     }
   ];
 
@@ -64,37 +52,22 @@ const ParallaxColumns = () => {
       title: 'AI Art Generation',
       subtitle: 'Machine Learning Experiments',
       description: 'Exploring generative AI for creating unique digital art pieces and interactive installations',
-      tech: 'Python, TensorFlow'
+      tech: 'Python, TensorFlow',
+      image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=250&fit=crop'
     },
     {
       title: 'WebGL Installations',
       subtitle: 'Interactive 3D Experiences',
       description: 'Building immersive web-based 3D environments using modern WebGL techniques',
-      tech: 'Three.js, GLSL'
+      tech: 'Three.js, GLSL',
+      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop'
     },
     {
       title: 'AR Filter Development',
       subtitle: 'Social Media Filters',
       description: 'Creating engaging AR filters for Instagram and Snapchat using Lens Studio',
-      tech: 'Lens Studio, SparkAR'
-    },
-    {
-      title: 'Generative Design Tools',
-      subtitle: 'Parametric Design Systems',
-      description: 'Developing tools for procedural design generation and creative automation',
-      tech: 'p5.js, Processing'
-    },
-    {
-      title: 'VR Prototypes',
-      subtitle: 'Spatial Computing',
-      description: 'Experimenting with new interaction paradigms in virtual reality environments',
-      tech: 'Unity, Oculus SDK'
-    },
-    {
-      title: 'Creative Coding',
-      subtitle: 'Algorithmic Art',
-      description: 'Exploring the intersection of code and creativity through algorithmic art projects',
-      tech: 'JavaScript, Canvas'
+      tech: 'Lens Studio, SparkAR',
+      image: 'https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=350&fit=crop'
     }
   ];
 
@@ -105,11 +78,21 @@ const ParallaxColumns = () => {
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
     <div className="group cursor-pointer">
-      <div className="p-6 bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-500 hover:bg-background/60 hover:border-border/40 hover:shadow-2xl hover:shadow-background/10 hover:-translate-y-2 min-h-[200px] flex flex-col justify-between">
-        <div>
+      <div className="bg-background/40 backdrop-blur-md border border-border/20 transition-all duration-500 hover:bg-background/60 hover:border-border/40 hover:shadow-2xl hover:shadow-background/10 hover:-translate-y-2 overflow-hidden">
+        {item.image && (
+          <div className="aspect-[4/3] overflow-hidden">
+            <img 
+              src={item.image} 
+              alt={item.title}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+        )}
+        
+        <div className="p-6">
           <div className="flex items-start justify-between mb-3">
             <h3 className="text-base font-mono font-medium leading-tight group-hover:text-foreground/90 transition-colors">
-              {isWork || isPlayground ? item.title : item}
+              {item.title}
             </h3>
             {isWork && (
               <span className="text-xs font-mono text-muted-foreground ml-4 shrink-0">
@@ -118,24 +101,24 @@ const ParallaxColumns = () => {
             )}
           </div>
           
-          {(isWork || isPlayground) && (
-            <>
-              <p className="text-sm font-mono text-muted-foreground mb-3 leading-relaxed">
-                {item.subtitle}
-              </p>
-              <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed">
-                {item.description}
-              </p>
-              {isPlayground && item.tech && (
-                <span className="text-xs font-mono text-muted-foreground/60 mt-3 block">
-                  {item.tech}
-                </span>
-              )}
-            </>
+          {(isWork || isPlayground) && item.subtitle && (
+            <p className="text-sm font-mono text-muted-foreground mb-3 leading-relaxed">
+              {item.subtitle}
+            </p>
           )}
+          
+          <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed">
+            {item.description}
+          </p>
+          
+          {isPlayground && item.tech && (
+            <span className="text-xs font-mono text-muted-foreground/60 mt-3 block">
+              {item.tech}
+            </span>
+          )}
+          
+          <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-border/80 transition-colors"></div>
         </div>
-        
-        <div className="mt-4 w-6 h-px bg-gradient-to-r from-border/40 to-transparent group-hover:from-border/80 transition-colors"></div>
       </div>
     </div>
   );
