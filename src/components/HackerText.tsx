@@ -12,11 +12,14 @@ interface HackerTextProps {
 const HackerText = ({ text, trigger, className }: HackerTextProps) => {
   const [display, setDisplay] = useState(text);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [lastTrigger, setLastTrigger] = useState(0);
 
   useEffect(() => {
+    // Only trigger if we have a new trigger value and not currently animating
     if (!trigger || isAnimating) return;
 
     setIsAnimating(true);
+    setLastTrigger(trigger);
     let frame = 0;
     let scrambleInterval: NodeJS.Timeout;
     let resolveInterval: NodeJS.Timeout;
@@ -29,11 +32,11 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
           .join("");
         setDisplay(scrambled);
         frame++;
-        if (frame > 4) { // Reduced for faster effect
+        if (frame > 3) { // Quick scramble
           clearInterval(scrambleInterval);
           resolve();
         }
-      }, 20); // Faster scrambling
+      }, 30); // Scrambling speed
     };
 
     const resolve = () => {
@@ -50,13 +53,15 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
         i++;
         if (i >= text.length) {
           clearInterval(resolveInterval);
-          // After resolving, show normal text briefly then return to normal state
+          // Show the resolved text for a moment, then return to normal
           setTimeout(() => {
             setDisplay(text);
-            setIsAnimating(false);
-          }, 200); // Brief pause to show the resolved text
+            setTimeout(() => {
+              setIsAnimating(false);
+            }, 100);
+          }, 300); // Show completed text for 300ms
         }
-      }, 15); // Faster resolving
+      }, 25); // Resolution speed
     };
 
     scramble();
@@ -66,7 +71,7 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
       clearInterval(resolveInterval);
       setIsAnimating(false);
     };
-  }, [trigger, text, isAnimating]);
+  }, [trigger, text, isAnimating, lastTrigger]);
 
   return (
     <span className={className}>
