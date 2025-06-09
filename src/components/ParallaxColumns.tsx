@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 
 const ParallaxColumns = () => {
@@ -188,7 +189,7 @@ const ParallaxColumns = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 px-6 py-16 min-h-screen overflow-hidden">
+        <div className="grid grid-cols-3 gap-2 px-6 py-8 min-h-screen overflow-hidden">
           <ColumnContent items={aboutItems} offset={leftOffset} title="About" />
           <ColumnContent items={workItems} offset={centerOffset} title="Work" isWork={true} />
           <ColumnContent items={playgroundItems} offset={rightOffset} title="Playground" isPlayground={true} />

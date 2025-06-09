@@ -102,7 +102,7 @@ const AsciiSky = () => {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = "#ffcc66";
 
       // Calculate center of canvas
       const centerX = canvas.width / 2;
@@ -187,14 +187,14 @@ const AsciiSky = () => {
       const centerY = canvas.height / 2;
       const moonRadius = Math.min(canvas.width, canvas.height) * 0.18;
 
-      // Draw twinkling stars across the entire screen
-      ctx.font = "12px monospace";
+      // Draw twinkling stars across the entire screen - more visible
+      ctx.font = "14px monospace";
       for (let i = 0; i < stars.length; i++) {
         const star = stars[i];
         const x = star.x * canvas.width;
         const y = star.y * canvas.height;
-        const flicker = 0.5 + 0.5 * Math.sin(time * star.speed + star.flickerOffset);
-        ctx.globalAlpha = flicker * 0.8;
+        const flicker = 0.7 + 0.3 * Math.sin(time * star.speed + star.flickerOffset);
+        ctx.globalAlpha = flicker;
         const char = starChars[(star.charIndex + Math.floor(time * 0.001)) % starChars.length];
         ctx.fillText(char, x - 6, y + 4);
       }
@@ -245,7 +245,7 @@ const AsciiSky = () => {
     <div className="fixed inset-0 pointer-events-none">
       <canvas 
         ref={canvasRef} 
-        className="absolute inset-0 w-full h-full opacity-30"
+        className="absolute inset-0 w-full h-full opacity-40"
         style={{
           filter: 'contrast(1.2)',
           imageRendering: 'pixelated'
