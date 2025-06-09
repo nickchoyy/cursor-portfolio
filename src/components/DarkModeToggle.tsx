@@ -25,13 +25,13 @@ const DarkModeToggle = () => {
   return (
     <button
       onClick={() => setIsDark(!isDark)}
-      className="fixed top-6 right-6 z-50 p-2 bg-background/80 backdrop-blur-md border border-border/20 hover:bg-background/90 transition-all duration-200 group glow-effect light-halo"
+      className="fixed top-6 right-6 z-50 p-3 bg-background border border-border rounded-full hover:bg-secondary transition-colors duration-200 shadow-lg"
       aria-label="Toggle dark mode"
     >
       {isDark ? (
-        <Sun className="h-4 w-4 text-foreground transition-transform group-hover:scale-110" />
+        <Sun className="h-5 w-5 text-foreground" />
       ) : (
-        <Moon className="h-4 w-4 text-foreground transition-transform group-hover:scale-110" />
+        <Moon className="h-5 w-5 text-foreground" />
       )}
     </button>
   );
