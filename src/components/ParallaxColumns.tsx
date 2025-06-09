@@ -7,9 +7,7 @@ const ParallaxColumns = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const [headerAtTop, setHeaderAtTop] = useState(false);
   const [parallaxStartY, setParallaxStartY] = useState(0);
-  const [animatedParallaxScroll, setAnimatedParallaxScroll] = useState(0);
-  const [smoothProgress, setSmoothProgress] = useState(0);
-  const animationRef = useRef<number>();
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,48 +35,20 @@ const ParallaxColumns = () => {
     };
   }, [headerAtTop]);
 
-  useEffect(() => {
-    const animate = () => {
-      const target = headerAtTop ? Math.max(0, scrollY - parallaxStartY) : 0;
-      
-      setAnimatedParallaxScroll((prev) => {
-        const diff = target - prev;
-        if (Math.abs(diff) < 0.5) {
-          // Stop animation when close enough to prevent infinite loops
-          if (animationRef.current) {
-            cancelAnimationFrame(animationRef.current);
-          }
-          return target;
-        }
-        return prev + diff * 0.08;
-      });
-      
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    if (headerAtTop || animatedParallaxScroll > 0) {
-      animate();
-    }
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [scrollY, headerAtTop, parallaxStartY]);
-
-  // Simple, stable progress calculation
+  // Direct progress calculation based on center column only
   useEffect(() => {
     if (!headerAtTop) {
-      setSmoothProgress(0);
+      setProgress(0);
       return;
     }
 
-    const estimatedTotalHeight = playgroundItems.length * 300;
-    const rawProgress = Math.max(0, Math.min(100, (animatedParallaxScroll / estimatedTotalHeight) * 100));
+    const parallaxScroll = Math.max(0, scrollY - parallaxStartY);
+    const centerOffset = parallaxScroll * 0.2; // Only track center column speed
+    const estimatedTotalHeight = workItems.length * 300;
+    const rawProgress = Math.max(0, Math.min(100, (centerOffset / estimatedTotalHeight) * 100));
     
-    setSmoothProgress(rawProgress);
-  }, [animatedParallaxScroll, headerAtTop]);
+    setProgress(rawProgress);
+  }, [scrollY, headerAtTop, parallaxStartY]);
 
   const aboutItems = [
     {
@@ -271,10 +241,11 @@ const ParallaxColumns = () => {
     }
   ];
 
-  // Improved parallax offsets
-  const leftOffset = animatedParallaxScroll * 0.6;
-  const centerOffset = animatedParallaxScroll * 0.2;
-  const rightOffset = animatedParallaxScroll * 0.6;
+  // Direct parallax offsets without physics
+  const parallaxScroll = headerAtTop ? Math.max(0, scrollY - parallaxStartY) : 0;
+  const leftOffset = parallaxScroll * 0.6;
+  const centerOffset = parallaxScroll * 0.2;
+  const rightOffset = parallaxScroll * 0.6;
 
   const BentoCard = ({ item, isWork = false, isPlayground = false }: { item: any, isWork?: boolean, isPlayground?: boolean }) => (
     <div className={`group cursor-pointer transition-all duration-300 ${isWork || isPlayground ? 'opacity-80 hover:opacity-100' : 'opacity-60 hover:opacity-100'} hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/10`}>
@@ -400,10 +371,10 @@ const ParallaxColumns = () => {
   return (
     <>
       <div ref={containerRef} className="bg-gradient-to-br from-background via-background to-background/95 z-30">
-        {/* Smooth progress bar */}
+        {/* Progress bar tracking center column only */}
         <div className="fixed top-0 left-0 right-0 z-50">
           <Progress 
-            value={smoothProgress} 
+            value={progress} 
             className="h-1 rounded-none bg-background/20" 
           />
         </div>
