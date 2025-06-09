@@ -49,10 +49,9 @@ const AsciiSky = () => {
     let t = 0;
     let rotation = 0;
     let lastTime = 0;
-    const rotationSpeed = 0.05;
 
     // Sun variables
-    const sunChars = ["O", "0", "*", "@", "=", "#", ".", "~", "+", "x", "-", "/", "|", "\\", "<", ">"];
+    const sunChars = ["@", "*", "#", "=", "~", "-", ".", "+"];
     const rayChars = ["|", "/", "-", "\\"];
 
     // Moon variables
@@ -81,40 +80,45 @@ const AsciiSky = () => {
     }
 
     const drawSun = (time: number) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = isDark ? "#cccccc" : "#000000";
+      const width = canvas.width;
+      const height = canvas.height;
 
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const sunRadius = Math.min(canvas.width, canvas.height) * 0.15;
+      ctx.clearRect(0, 0, width, height);
+      ctx.font = "12px monospace";
+      ctx.fillStyle = isDark ? "#cccccc" : "#ffcc66";
 
-      // Update rotation
+      // Time delta + rotation angle
       const deltaTime = time - lastTime;
       lastTime = time;
-      rotation += rotationSpeed * (deltaTime / 1000);
+      rotation += 0.0005 * deltaTime;
 
-      // Draw sun core in concentric rings
-      ctx.font = "12px monospace";
+      // Move center along x-axis (looping back)
+      const centerX = (time * 0.1) % (width + 200) - 100;
+      const centerY = height / 2;
+
+      const sunRadius = Math.min(width, height) * 0.15;
+
+      // Draw concentric ASCII rings
       for (let r = sunRadius; r > 0; r -= 12) {
         const circumference = 2 * Math.PI * r;
         const charCount = Math.floor(circumference / 8);
         const char = sunChars[Math.floor((sunRadius - r) / 12) % sunChars.length];
 
         for (let i = 0; i < charCount; i++) {
-          const angle = (i / charCount) * 2 * Math.PI;
+          const angle = (i / charCount) * 2 * Math.PI + rotation * 0.5;
           const x = centerX + Math.cos(angle) * r;
           const y = centerY + Math.sin(angle) * r;
           ctx.fillText(char, x - 6, y + 4);
         }
       }
 
-      // Draw sun center
+      // Sun core
       ctx.font = "16px monospace";
       ctx.fillText("O", centerX - 8, centerY + 6);
 
-      // Draw rotating rays
-      const rayCount = 16;
-      const maxRayLength = Math.min(canvas.width, canvas.height) * 0.3;
+      // Rotating rays
+      const rayCount = 24;
+      const maxRayLength = Math.min(width, height) * 0.4;
 
       for (let i = 0; i < rayCount; i++) {
         const angle = rotation + (i / rayCount) * 2 * Math.PI;
@@ -126,24 +130,25 @@ const AsciiSky = () => {
           const distance = sunRadius + j * 12;
           const x = centerX + Math.cos(angle) * distance;
           const y = centerY + Math.sin(angle) * distance;
-
           ctx.globalAlpha = 1 - j / raySegments;
           ctx.fillText(rayChar, x - 6, y + 4);
         }
-        ctx.globalAlpha = 1;
       }
 
-      // Add glow dithering
-      const ditherCount = 100;
+      ctx.globalAlpha = 1;
+
+      // Dithering glow around sun
+      const ditherCount = 200;
       for (let i = 0; i < ditherCount; i++) {
         const angle = Math.random() * 2 * Math.PI;
         const distance = sunRadius + Math.random() * (maxRayLength * 0.4);
         const x = centerX + Math.cos(angle) * distance;
         const y = centerY + Math.sin(angle) * distance;
 
-        ctx.globalAlpha = 0.2 * (1 - (distance - sunRadius) / (maxRayLength * 0.4));
+        ctx.globalAlpha = 0.3 * (1 - (distance - sunRadius) / (maxRayLength * 0.4));
         ctx.fillText(".", x - 3, y + 3);
       }
+
       ctx.globalAlpha = 1;
     };
 
