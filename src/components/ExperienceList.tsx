@@ -18,7 +18,7 @@ const ExperienceList = () => {
             key={index}
             className="flex gap-3 text-[10px] font-mono"
           >
-            <div className="text-muted-foreground min-w-[2rem] shrink-0 text-right">{exp.year}</div>
+            <div className="text-muted-foreground min-w-[2rem] shrink-0 text-left">{exp.year}</div>
             <div className="flex-1">
               <div className="font-medium leading-tight">{exp.company}</div>
               <div className="text-muted-foreground leading-tight">{exp.role}</div>
