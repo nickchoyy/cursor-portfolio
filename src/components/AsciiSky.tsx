@@ -181,6 +181,7 @@ const AsciiSky = () => {
       if (!startTime) startTime = time;
       const elapsed = time - startTime;
       const rotationAngle = ((elapsed % rotationPeriod) / rotationPeriod) * 2 * Math.PI;
+      const ringRotationAngle = ((elapsed % (rotationPeriod / 2)) / (rotationPeriod / 2)) * 2 * Math.PI; // Ring rotates faster
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
@@ -203,6 +204,50 @@ const AsciiSky = () => {
       }
 
       ctx.globalAlpha = 1;
+
+      // Draw 3D ring around moon (Saturn-like)
+      const ringInnerRadius = moonRadius * 1.3;
+      const ringOuterRadius = moonRadius * 1.8;
+      const ringTilt = Math.PI / 6; // 30 degree tilt
+      const ringChars = ["-", "=", "_", "~"];
+      
+      ctx.font = "12px monospace";
+      ctx.fillStyle = "#999999";
+      
+      // Draw ring segments with 3D perspective
+      for (let angle = 0; angle < 2 * Math.PI; angle += 0.1) {
+        const rotatedAngle = angle + ringRotationAngle;
+        
+        // Calculate 3D position with tilt
+        const x3d = Math.cos(rotatedAngle);
+        const y3d = Math.sin(rotatedAngle) * Math.cos(ringTilt);
+        const z3d = Math.sin(rotatedAngle) * Math.sin(ringTilt);
+        
+        // Only draw visible parts (front half)
+        if (z3d > -0.3) {
+          const innerX = centerX + x3d * ringInnerRadius;
+          const innerY = centerY + y3d * ringInnerRadius;
+          const outerX = centerX + x3d * ringOuterRadius;
+          const outerY = centerY + y3d * ringOuterRadius;
+          
+          // Vary opacity based on depth
+          const opacity = 0.4 + 0.6 * (z3d + 1) / 2;
+          ctx.globalAlpha = opacity;
+          
+          // Draw ring segments
+          const segments = 3;
+          for (let s = 0; s < segments; s++) {
+            const t = s / segments;
+            const x = innerX + (outerX - innerX) * t;
+            const y = innerY + (outerY - innerY) * t;
+            const charIndex = Math.floor((rotatedAngle + s) * 2) % ringChars.length;
+            ctx.fillText(ringChars[charIndex], x - 4, y + 4);
+          }
+        }
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "#cccccc";
 
       // Draw full moon with rotation
       const moonChars = ["@", "O", "*", "#", ".", "+", "-", "="];
