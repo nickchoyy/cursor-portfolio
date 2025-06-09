@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { Progress } from './ui/progress';
 
@@ -245,10 +246,10 @@ const ParallaxColumns = () => {
   const baseScrollThreshold = 200;
   const adjustedScrollY = Math.max(0, scrollY - baseScrollThreshold);
   
-  // Use animated parallax scroll for smooth transitions
-  const leftOffset = animatedParallaxScroll * 0.4;
-  const centerOffset = animatedParallaxScroll * 0.2; // Slower than outer columns
-  const rightOffset = animatedParallaxScroll * 0.4;
+  // Use animated parallax scroll for smooth transitions - increased speed for outer columns
+  const leftOffset = animatedParallaxScroll * 0.6; // Increased from 0.4
+  const centerOffset = animatedParallaxScroll * 0.2; // Keep same speed
+  const rightOffset = animatedParallaxScroll * 0.6; // Increased from 0.4
   
   // Fixed progress calculation - only track when actually in parallax section
   const parallaxSectionStart = baseScrollThreshold;
