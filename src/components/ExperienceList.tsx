@@ -1,5 +1,6 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import HackerText from './HackerText';
 
 const experiences = [
   { year: '24', company: 'Meta Reality Labs', role: 'AR UX, Unity, Art Direction' },
@@ -9,6 +10,18 @@ const experiences = [
 ];
 
 const ExperienceList = () => {
+  const [themeChangeCount, setThemeChangeCount] = useState(0);
+
+  // Listen for theme changes
+  useEffect(() => {
+    const handleThemeChange = (event: CustomEvent) => {
+      setThemeChangeCount(event.detail);
+    };
+
+    window.addEventListener('themeChange', handleThemeChange as EventListener);
+    return () => window.removeEventListener('themeChange', handleThemeChange as EventListener);
+  }, []);
+
   return (
     <div className="absolute top-6 right-8 w-64">
       {/* Experience Container */}
@@ -18,10 +31,16 @@ const ExperienceList = () => {
             key={index}
             className="flex gap-3 text-[10px] font-mono"
           >
-            <div className="text-muted-foreground min-w-[2rem] shrink-0 text-left">{exp.year}</div>
+            <div className="text-muted-foreground min-w-[2rem] shrink-0 text-left">
+              <HackerText text={exp.year} trigger={themeChangeCount > 0} />
+            </div>
             <div className="flex-1">
-              <div className="font-medium leading-tight">{exp.company}</div>
-              <div className="text-muted-foreground leading-tight">{exp.role}</div>
+              <div className="font-medium leading-tight">
+                <HackerText text={exp.company} trigger={themeChangeCount > 0} />
+              </div>
+              <div className="text-muted-foreground leading-tight">
+                <HackerText text={exp.role} trigger={themeChangeCount > 0} />
+              </div>
             </div>
           </div>
         ))}
@@ -30,8 +49,10 @@ const ExperienceList = () => {
       {/* Skills Container */}
       <div className="mt-4">
         <div className="text-[10px] font-mono leading-relaxed text-muted-foreground">
-          Unity, C#, AI, Blender, Lens Studio, JavaScript, p5.js, SparkAR, 
-          Lightship ARDK, Oculus SDK, Python, VR, Growth, Design Systems
+          <HackerText 
+            text="Unity, C#, AI, Blender, Lens Studio, JavaScript, p5.js, SparkAR, Lightship ARDK, Oculus SDK, Python, VR, Growth, Design Systems" 
+            trigger={themeChangeCount > 0} 
+          />
         </div>
       </div>
     </div>
