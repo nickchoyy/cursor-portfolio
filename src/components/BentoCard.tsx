@@ -31,8 +31,8 @@ const BentoCard = ({
         isHighlighted 
           ? 'opacity-100' 
           : isWork || isPlayground 
-            ? 'opacity-85' 
-            : 'opacity-75'
+            ? 'opacity-40' 
+            : 'opacity-30'
       }`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}

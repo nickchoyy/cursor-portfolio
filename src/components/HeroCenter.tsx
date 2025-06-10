@@ -1,6 +1,4 @@
-
 import React, { useState, useEffect } from 'react';
-import HackerText from './HackerText';
 
 const HeroCenter = () => {
   const [themeChangeCount, setThemeChangeCount] = useState(0);
@@ -18,9 +16,7 @@ const HeroCenter = () => {
   return (
     <div className="absolute inset-0 flex items-center justify-center z-10">
       <div className="text-center">
-        <div className="text-sm font-mono tracking-[0.3em] text-muted-foreground">
-          <HackerText text="DESIGN • MARKETING • GROWTH • ∞" trigger={themeChangeCount} />
-        </div>
+        {/* Content removed as requested */}
       </div>
     </div>
   );

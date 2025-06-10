@@ -4,7 +4,6 @@ import { Copy } from 'lucide-react';
 import HackerText from './HackerText';
 
 const ContactInfo = () => {
-  const [isHovered, setIsHovered] = useState(false);
   const [themeChangeCount, setThemeChangeCount] = useState(0);
   const [copied, setCopied] = useState(false);
 
@@ -42,41 +41,26 @@ const ContactInfo = () => {
             <Copy size={12} />
           </button>
         </div>
-        <div 
-          className="relative"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <span className="text-muted-foreground text-xs cursor-pointer">
-            <HackerText text="@nickchoy+" trigger={themeChangeCount} />
-          </span>
-          
-          <div className={`absolute top-full left-0 mt-1 transition-all duration-200 ${
-            isHovered ? 'opacity-100 visible' : 'opacity-0 invisible'
-          }`}>
-            <div className="bg-background/90 backdrop-blur-md border border-border/20 rounded-md p-2 shadow-lg">
-              <div className="space-y-1">
-                <a 
-                  href="#" 
-                  className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-background/50"
-                >
-                  <HackerText text="Resume" trigger={themeChangeCount} />
-                </a>
-                <a 
-                  href="#" 
-                  className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-background/50"
-                >
-                  <HackerText text="Twitter" trigger={themeChangeCount} />
-                </a>
-                <a 
-                  href="#" 
-                  className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-background/50"
-                >
-                  <HackerText text="LinkedIn" trigger={themeChangeCount} />
-                </a>
-              </div>
-            </div>
-          </div>
+        
+        <div className="space-y-1 mt-3">
+          <a 
+            href="#" 
+            className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <HackerText text="Resume" trigger={themeChangeCount} />
+          </a>
+          <a 
+            href="#" 
+            className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <HackerText text="Twitter" trigger={themeChangeCount} />
+          </a>
+          <a 
+            href="#" 
+            className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <HackerText text="LinkedIn" trigger={themeChangeCount} />
+          </a>
         </div>
       </div>
     </div>

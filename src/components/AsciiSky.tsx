@@ -181,7 +181,7 @@ const AsciiSky = () => {
       if (!startTime) startTime = time;
       const elapsed = time - startTime;
       const rotationAngle = ((elapsed % rotationPeriod) / rotationPeriod) * 2 * Math.PI;
-      const ringRotationAngle = ((elapsed % (rotationPeriod / 2)) / (rotationPeriod / 2)) * 2 * Math.PI; // Ring rotates faster
+      const ringRotationAngle = ((elapsed % (rotationPeriod / 2)) / (rotationPeriod / 2)) * 2 * Math.PI;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
@@ -191,7 +191,7 @@ const AsciiSky = () => {
       const centerY = canvas.height / 2;
       const moonRadius = Math.min(canvas.width, canvas.height) * 0.18;
 
-      // Draw twinkling stars across the entire screen - more visible
+      // Draw twinkling stars across the entire screen
       ctx.font = "16px monospace";
       for (let i = 0; i < stars.length; i++) {
         const star = stars[i];
@@ -205,43 +205,47 @@ const AsciiSky = () => {
 
       ctx.globalAlpha = 1;
 
-      // Draw 3D ring around moon (Saturn-like)
-      const ringInnerRadius = moonRadius * 1.3;
-      const ringOuterRadius = moonRadius * 1.8;
-      const ringTilt = Math.PI / 6; // 30 degree tilt
-      const ringChars = ["-", "=", "_", "~"];
+      // Enhanced Saturn-like ring system
+      const ringInnerRadius = moonRadius * 1.2;
+      const ringOuterRadius = moonRadius * 2.0;
+      const ringTilt = Math.PI / 5; // 36 degree tilt for better visibility
+      const ringChars = ["o", "*", "-", "=", "·", "+"];
       
-      ctx.font = "12px monospace";
-      ctx.fillStyle = "#999999";
+      ctx.font = "10px monospace";
+      ctx.fillStyle = "#aaaaaa";
       
-      // Draw ring segments with 3D perspective
-      for (let angle = 0; angle < 2 * Math.PI; angle += 0.1) {
-        const rotatedAngle = angle + ringRotationAngle;
+      // Create multiple ring layers for depth
+      const ringLayers = 4;
+      for (let layer = 0; layer < ringLayers; layer++) {
+        const layerRadius = ringInnerRadius + (layer / ringLayers) * (ringOuterRadius - ringInnerRadius);
+        const layerDensity = Math.max(60, 120 - layer * 15); // More dense inner rings
         
-        // Calculate 3D position with tilt
-        const x3d = Math.cos(rotatedAngle);
-        const y3d = Math.sin(rotatedAngle) * Math.cos(ringTilt);
-        const z3d = Math.sin(rotatedAngle) * Math.sin(ringTilt);
-        
-        // Only draw visible parts (front half)
-        if (z3d > -0.3) {
-          const innerX = centerX + x3d * ringInnerRadius;
-          const innerY = centerY + y3d * ringInnerRadius;
-          const outerX = centerX + x3d * ringOuterRadius;
-          const outerY = centerY + y3d * ringOuterRadius;
+        for (let i = 0; i < layerDensity; i++) {
+          const angle = (i / layerDensity) * 2 * Math.PI + ringRotationAngle * (1 + layer * 0.1);
           
-          // Vary opacity based on depth
-          const opacity = 0.4 + 0.6 * (z3d + 1) / 2;
-          ctx.globalAlpha = opacity;
+          // Calculate 3D position with tilt
+          const x3d = Math.cos(angle);
+          const y3d = Math.sin(angle) * Math.cos(ringTilt);
+          const z3d = Math.sin(angle) * Math.sin(ringTilt);
           
-          // Draw ring segments
-          const segments = 3;
-          for (let s = 0; s < segments; s++) {
-            const t = s / segments;
-            const x = innerX + (outerX - innerX) * t;
-            const y = innerY + (outerY - innerY) * t;
-            const charIndex = Math.floor((rotatedAngle + s) * 2) % ringChars.length;
-            ctx.fillText(ringChars[charIndex], x - 4, y + 4);
+          // Only draw visible parts and create elliptical appearance
+          if (z3d > -0.8) {
+            const x = centerX + x3d * layerRadius;
+            const y = centerY + y3d * layerRadius;
+            
+            // Perspective shading - lighter at front, darker at back
+            const depth = (z3d + 1) / 2; // Normalize to 0-1
+            const opacity = 0.3 + 0.7 * depth;
+            ctx.globalAlpha = opacity;
+            
+            // Add some randomness to ring particle positions
+            const jitterX = (Math.random() - 0.5) * 4;
+            const jitterY = (Math.random() - 0.5) * 2;
+            
+            const charIndex = (Math.floor(angle * 3) + layer) % ringChars.length;
+            const char = ringChars[charIndex];
+            
+            ctx.fillText(char, x + jitterX - 3, y + jitterY + 3);
           }
         }
       }
@@ -249,29 +253,33 @@ const AsciiSky = () => {
       ctx.globalAlpha = 1;
       ctx.fillStyle = "#cccccc";
 
-      // Draw full moon with rotation
+      // Draw dense moon sphere
       const moonChars = ["@", "O", "*", "#", ".", "+", "-", "="];
       
-      // Draw full circle moon
-      for (let r = moonRadius; r > 0; r -= 12) {
+      // Create a denser moon with more layers
+      for (let r = moonRadius; r > 0; r -= 8) {
         const circumference = 2 * Math.PI * r;
-        const charCount = Math.floor(circumference / 8);
-        const charIndex = Math.floor((moonRadius - r) / 12) % moonChars.length;
+        const charCount = Math.floor(circumference / 6); // Denser packing
+        const charIndex = Math.floor((moonRadius - r) / 8) % moonChars.length;
         const char = moonChars[charIndex];
+
+        ctx.font = `${Math.max(8, 12 - (moonRadius - r) / 20)}px monospace`;
 
         for (let i = 0; i < charCount; i++) {
           const angle = (i / charCount) * 2 * Math.PI + rotationAngle * 0.3;
           const dx = Math.cos(angle) * r;
           const dy = Math.sin(angle) * r;
-          ctx.fillText(char, centerX + dx - 6, centerY + dy + 4);
+          
+          // Add slight opacity variation for depth
+          ctx.globalAlpha = 0.9 + 0.1 * Math.sin(angle * 3);
+          ctx.fillText(char, centerX + dx - 4, centerY + dy + 4);
         }
       }
 
       // Draw moon center
-      ctx.font = "16px monospace";
-      ctx.fillText("O", centerX - 4, centerY + 6);
-
       ctx.globalAlpha = 1;
+      ctx.font = "16px monospace";
+      ctx.fillText("@", centerX - 4, centerY + 6);
     };
 
     const animate = (time: number) => {
