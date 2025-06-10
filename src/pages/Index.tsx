@@ -8,6 +8,7 @@ import Footer from '../components/Footer';
 import DarkModeToggle from '../components/DarkModeToggle';
 import LoadingScreen from '../components/LoadingScreen';
 import DarkModeTransition from '../components/DarkModeTransition';
+import AsciiSky from '../components/AsciiSky';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +21,7 @@ const Index = () => {
     <>
       {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
       <DarkModeTransition />
+      <AsciiSky />
       
       <div className="bg-background text-foreground">
         <DarkModeToggle />
