@@ -1,16 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
 import HackerText from './HackerText';
-
-const experiences = [
-  { year: '24', company: 'Meta Reality Labs', role: 'AR UX, Unity, Art Direction' },
-  { year: '23-24', company: 'PlaybookXR', role: 'VR UX, Unity, AI' },
-  { year: '22-23', company: 'Wondr [Studio Godsey]', role: 'UX, Visual, Design System' },
-  { year: '21-22', company: 'Vertiigo', role: 'Extension UX, Visual, Web' }
-];
+import { experiences } from '../data/experiences';
 
 const ExperienceList = () => {
   const [themeChangeCount, setThemeChangeCount] = useState(0);
+  const [hoveredExperience, setHoveredExperience] = useState<number | null>(null);
 
   // Listen for theme changes
   useEffect(() => {
@@ -29,7 +24,11 @@ const ExperienceList = () => {
         {experiences.map((exp, index) => (
           <div 
             key={index}
-            className="flex gap-3 text-[10px] font-mono"
+            className={`flex gap-3 text-[10px] font-mono transition-all duration-300 cursor-pointer ${
+              hoveredExperience === index ? 'text-muted-foreground/50' : ''
+            }`}
+            onMouseEnter={() => setHoveredExperience(index)}
+            onMouseLeave={() => setHoveredExperience(null)}
           >
             <div className="text-muted-foreground min-w-[2rem] shrink-0 text-left">
               <HackerText text={exp.year} trigger={themeChangeCount} />
@@ -50,7 +49,7 @@ const ExperienceList = () => {
       <div className="mt-4">
         <div className="text-[10px] font-mono leading-relaxed text-muted-foreground">
           <HackerText 
-            text="Unity, C#, AI, Blender, Lens Studio, JavaScript, p5.js, SparkAR, Lightship ARDK, Oculus SDK, Python, VR, Growth, Design Systems" 
+            text="Figma, Adobe Creative Suite, Blender, Framer, Oragami, Framer, Design Systems, Python, Prototyping, Marketing, Product Design, Accessibility Design, A/B Testing" 
             trigger={themeChangeCount} 
           />
         </div>

@@ -1,6 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
-import AsciiSky from './AsciiSky';
+import React, { useState, useEffect } from 'react';
 import HackerText from './HackerText';
 
 const HeroCenter = () => {
@@ -9,7 +8,6 @@ const HeroCenter = () => {
   // Listen for theme changes
   useEffect(() => {
     const handleThemeChange = (event: CustomEvent) => {
-      console.log('HeroCenter received theme change:', event.detail);
       setThemeChangeCount(event.detail);
     };
 
@@ -18,14 +16,13 @@ const HeroCenter = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen relative z-10">
-      {/* Background sky animation */}
-      <AsciiSky />
-      
-      {/* Minimal text around the art */}
+    <div className="absolute inset-0 flex items-center justify-center z-10">
       <div className="text-center">
-        <div className="text-xs font-mono text-muted-foreground tracking-[0.2em] mb-4">
-          <HackerText text="AR/AI • DESIGNER • ARTIST • PROTOTYPER" trigger={themeChangeCount} />
+        <h1 className="text-6xl md:text-8xl font-light tracking-[0.2em] mb-4">
+          <HackerText text="NICK CHOY" trigger={themeChangeCount} />
+        </h1>
+        <div className="text-sm font-mono tracking-[0.3em] text-muted-foreground">
+          <HackerText text="DESIGN • MARKETING • GROWTH • ∞" trigger={themeChangeCount} />
         </div>
       </div>
     </div>
