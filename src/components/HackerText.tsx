@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from "react";
 
 const SYMBOLS = "!@#$%^&*()_+=<>?/|~".split("");
@@ -24,9 +23,9 @@ const HackerText = ({ text, trigger, className }: HackerTextProps) => {
     const isMediumText = textLength > 20;
     
     // Adjust speeds based on text length
-    const scrambleFrames = isLongText ? 1 : isMediumText ? 2 : 3;
-    const scrambleDelay = isLongText ? 10 : isMediumText ? 15 : 20;
-    const resolveDelay = isLongText ? 8 : isMediumText ? 12 : 15;
+    const scrambleFrames = isLongText ? 1 : isMediumText ? 2 : 2;
+    const scrambleDelay = isLongText ? 5 : isMediumText ? 8 : 10;
+    const resolveDelay = isLongText ? 4 : isMediumText ? 6 : 8;
 
     let frame = 0;
     let scrambleInterval: NodeJS.Timeout;

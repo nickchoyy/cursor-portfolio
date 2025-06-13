@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
-import { Copy } from 'lucide-react';
-import HackerText from './HackerText';
+import { Copy, Mail, Github, Linkedin } from 'lucide-react';
+import ScrambleText from './ScrambleText';
 
 const ContactInfo = () => {
   const [themeChangeCount, setThemeChangeCount] = useState(0);
@@ -32,7 +31,9 @@ const ContactInfo = () => {
     <div className="absolute top-8 left-8 z-50">
       <div className="text-sm font-mono">
         <div className="mb-1 flex items-center gap-2">
-          <HackerText text="nickchoy@berkeley.edu" trigger={themeChangeCount} />
+          <div className="text-xs font-mono text-muted-foreground">
+            <ScrambleText text="nickchoy@berkeley.edu" trigger={themeChangeCount} />
+          </div>
           <button
             onClick={handleCopyEmail}
             className="opacity-60 hover:opacity-100 transition-opacity duration-200"
@@ -47,19 +48,19 @@ const ContactInfo = () => {
             href="#" 
             className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
           >
-            <HackerText text="Resume" trigger={themeChangeCount} />
+            <ScrambleText text="Resume" trigger={themeChangeCount} />
           </a>
           <a 
             href="#" 
             className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
           >
-            <HackerText text="Twitter" trigger={themeChangeCount} />
+            <ScrambleText text="Twitter" trigger={themeChangeCount} />
           </a>
           <a 
             href="#" 
             className="block text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
           >
-            <HackerText text="LinkedIn" trigger={themeChangeCount} />
+            <ScrambleText text="LinkedIn" trigger={themeChangeCount} />
           </a>
         </div>
       </div>

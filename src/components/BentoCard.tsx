@@ -1,6 +1,5 @@
-
 import React from 'react';
-import HackerText from './HackerText';
+import ScrambleText from './ScrambleText';
 
 interface BentoCardProps {
   item: any;
@@ -70,28 +69,28 @@ const BentoCard = ({
         <div className="p-6">
           <div className="flex items-start justify-between mb-3">
             <h3 className="text-xs font-mono font-medium leading-tight transition-colors duration-300">
-              <HackerText text={item.title} trigger={themeChangeCount} />
+              <ScrambleText text={item.title} trigger={themeChangeCount} speed="fast" />
             </h3>
             {isWork && (
               <span className="text-xs font-mono text-muted-foreground ml-4 shrink-0 transition-colors duration-300">
-                <HackerText text={item.year} trigger={themeChangeCount} />
+                <ScrambleText text={item.year} trigger={themeChangeCount} speed="fast" />
               </span>
             )}
           </div>
           
           {(isWork || isPlayground) && item.subtitle && (
             <p className="text-xs font-mono text-muted-foreground mb-3 leading-relaxed transition-colors duration-300">
-              <HackerText text={item.subtitle} trigger={themeChangeCount} />
+              <ScrambleText text={item.subtitle} trigger={themeChangeCount} speed="medium" />
             </p>
           )}
           
           <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed transition-colors duration-300">
-            <HackerText text={item.description} trigger={themeChangeCount} />
+            <ScrambleText text={item.description} trigger={themeChangeCount} speed="slow" />
           </p>
           
           {isPlayground && item.tech && (
             <span className="text-xs font-mono text-muted-foreground/60 mt-3 block transition-colors duration-300">
-              <HackerText text={item.tech} trigger={themeChangeCount} />
+              <ScrambleText text={item.tech} trigger={themeChangeCount} speed="medium" />
             </span>
           )}
           

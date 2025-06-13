@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import ContactInfo from '../components/ContactInfo';
 import ExperienceList from '../components/ExperienceList';
 import HeroCenter from '../components/HeroCenter';
 import ParallaxColumns from '../components/ParallaxColumns';
-import Footer from '../components/Footer';
 import DarkModeToggle from '../components/DarkModeToggle';
 import LoadingScreen from '../components/LoadingScreen';
 import DarkModeTransition from '../components/DarkModeTransition';
@@ -37,9 +35,6 @@ const Index = () => {
         <section className="-mt-32 relative z-20">
           <ParallaxColumns />
         </section>
-        
-        {/* Footer */}
-        <Footer />
       </div>
     </>
   );

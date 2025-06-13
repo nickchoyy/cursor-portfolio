@@ -1,6 +1,5 @@
-
 import React from 'react';
-import HackerText from './HackerText';
+import ScrambleText from './ScrambleText';
 
 interface AboutSectionProps {
   items: any[];
@@ -60,12 +59,12 @@ const AboutSection = ({
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-xs font-mono font-medium leading-tight transition-colors duration-300">
-                    <HackerText text={item.title} trigger={themeChangeCount} />
+                    <ScrambleText text={item.title} trigger={themeChangeCount} />
                   </h3>
                 </div>
                 
                 <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed transition-colors duration-300">
-                  <HackerText text={item.description} trigger={themeChangeCount} />
+                  <ScrambleText text={item.description} trigger={themeChangeCount} />
                 </p>
                 
                 <div className={`mt-4 h-px bg-gradient-to-r from-border/40 to-transparent transition-all duration-300 ${
