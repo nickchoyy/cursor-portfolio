@@ -34,7 +34,7 @@ const ColumnContent = ({
     >
       {items.map((item, index) => {
         const cardId = `${title.toLowerCase()}-${index}`;
-        const isHighlighted = hoveredItem === cardId || (hoveredItem === null && visibleItems.has(cardId));
+        const isHighlighted = hoveredItem === cardId;
         
         return (
           <BentoCard 

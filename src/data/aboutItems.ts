@@ -2,7 +2,7 @@
 export const aboutItems = [
   {
     title: 'Profile',
-    image: '/lovable-uploads/cf4e7fa2-b04a-4d24-927f-0ca3815a7e77.png',
+    image: '/lovable-uploads/pfp1_square.png',
     description: "I'm a multidisciplinary designer with a background in cognitive science, data, and visual storytelling. My journey blends human behavior, aesthetics, and code—shaping interfaces that are not just usable, but intuitive and expressive.",
     isProfile: true
   },

@@ -6,6 +6,7 @@ import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 const InfiniteScrollExperiences = () => {
   const [themeChangeCount, setThemeChangeCount] = useState(0);
   const [hoveredExperience, setHoveredExperience] = useState<number | null>(null);
+  const [hoveredCompany, setHoveredCompany] = useState<number | null>(null);
 
   // Use the infinite scroll hook
   const { 
@@ -29,7 +30,7 @@ const InfiniteScrollExperiences = () => {
   }, []);
 
   return (
-    <div className="absolute top-6 right-8 w-72">
+    <div className="absolute top-6 right-8 w-72 z-10">
       {/* Scrollable Experience Container */}
       <div 
         ref={scrollContainerRef}
@@ -52,7 +53,13 @@ const InfiniteScrollExperiences = () => {
                 <ScrambleText text={exp.year} trigger={themeChangeCount} speed="fast" />
               </div>
               <div className="flex-1">
-                <div className="font-medium leading-tight group-hover:text-foreground transition-colors">
+                <div 
+                  className={`font-medium leading-tight transition-all duration-300 cursor-pointer ${
+                    hoveredCompany === index ? 'text-muted-foreground/50' : 'group-hover:text-foreground'
+                  }`}
+                  onMouseEnter={() => setHoveredCompany(index)}
+                  onMouseLeave={() => setHoveredCompany(null)}
+                >
                   <ScrambleText text={exp.company} trigger={themeChangeCount} speed="medium" />
                 </div>
                 <div className="text-muted-foreground leading-tight group-hover:text-muted-foreground/80 transition-colors">

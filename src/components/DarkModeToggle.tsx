@@ -25,7 +25,7 @@ const DarkModeToggle = () => {
   return (
     <button
       onClick={() => setIsDark(!isDark)}
-      className="absolute top-6 right-6 z-50 p-2 bg-transparent hover:bg-secondary/50 transition-colors duration-200"
+      className="absolute top-6 right-8 z-50 p-2 bg-transparent hover:bg-secondary/50 transition-colors duration-200"
       aria-label="Toggle dark mode"
     >
       {isDark ? (

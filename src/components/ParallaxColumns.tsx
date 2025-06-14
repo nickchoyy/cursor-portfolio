@@ -80,13 +80,16 @@ const ParallaxColumns = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Master scroll handler for synchronized Work and Playground scrolling
+  // Master scroll handler for synchronized Work and Playground scrolling with smooth momentum
   const handleMasterScroll = useCallback((deltaY: number) => {
+    // Apply smooth momentum to scroll updates
+    const smoothMultiplier = 0.6; // Reduced from 0.8 for smoother feel
+    
     // Update cumulative progress (never resets)
-    setCumulativeProgress(prev => Math.max(0, prev + (deltaY * 0.8)));
+    setCumulativeProgress(prev => Math.max(0, prev + (deltaY * smoothMultiplier)));
     
     setMasterScrollY(prev => {
-      const newValue = prev + (deltaY * 0.8);
+      const newValue = prev + (deltaY * smoothMultiplier);
       
       // Use dynamic content height for early reset logic
       const contentHeight = contentHeightRef.current;
@@ -126,47 +129,29 @@ const ParallaxColumns = () => {
   return (
     <>
       <div ref={containerRef} className="bg-gradient-to-br from-background via-background to-background/95 z-30">
-        <div ref={headerRef} className="sticky top-0 bg-background/80 backdrop-blur-md border-b border-border/20 z-40">
-          <div className="grid grid-cols-3 gap-2 px-6 py-6">
+        <div ref={headerRef} className="sticky top-0 bg-background/90 backdrop-blur-sm border-b border-border/10 z-40" data-parallax-header>
+          <div className="grid grid-cols-3 gap-2 px-8 py-6">
             <div className="text-left">
               <div className="flex items-center gap-2">
                 <h2 className="text-xs font-mono font-medium tracking-wide">
-                  <ScrambleText text="About" trigger={themeChangeCount} speed="fast" />
+                  About
                 </h2>
-                {isParallaxActive && (
-                  <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 bg-muted-foreground/50 rounded-full"></div>
-                    <span className="text-xs text-muted-foreground/60 font-mono">Static</span>
-                  </div>
-                )}
               </div>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
             <div className="text-left">
               <div className="flex items-center gap-2">
                 <h2 className="text-xs font-mono font-medium tracking-wide">
-                  <ScrambleText text="Work" trigger={themeChangeCount} speed="medium" />
+                  Work
                 </h2>
-                {isParallaxActive && (
-                  <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 bg-blue-500/50 rounded-full animate-pulse"></div>
-                    <span className="text-xs text-muted-foreground/60 font-mono">∞ 1.0x</span>
-                  </div>
-                )}
               </div>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
             <div className="text-left">
               <div className="flex items-center gap-2">
                 <h2 className="text-xs font-mono font-medium tracking-wide">
-                  <ScrambleText text="Playground" trigger={themeChangeCount} speed="slow" />
+                  Playground
                 </h2>
-                {isParallaxActive && (
-                  <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 bg-gradient-to-r from-blue-500/50 to-purple-500/50 rounded-full animate-pulse"></div>
-                    <span className="text-xs text-muted-foreground/60 font-mono">∞ 1.0x</span>
-                  </div>
-                )}
               </div>
               <div className="w-8 h-px bg-border/40 mt-2"></div>
             </div>
@@ -174,64 +159,22 @@ const ParallaxColumns = () => {
         </div>
 
         {/* Conditional rendering: Normal or Infinite loop */}
-        {!isParallaxActive ? (
-          // Static content before header hits top - use same padding as parallax mode
-          <div className="grid grid-cols-3 gap-2 px-6 pt-20 pb-8">
-            <AboutSection 
-              items={aboutItems} 
-              offset={0} 
-              hoveredItem={hoveredItem}
-              visibleItems={visibleItems}
-              setHoveredItem={setHoveredItem}
-              themeChangeCount={themeChangeCount}
-            />
-            <ColumnContent 
-              items={workItems} 
-              offset={0} 
-              title="Work" 
-              isWork={true}
-              hoveredItem={hoveredItem}
-              visibleItems={visibleItems}
-              setHoveredItem={setHoveredItem}
-              themeChangeCount={themeChangeCount}
-            />
-            <ColumnContent 
-              items={playgroundItems} 
-              offset={0} 
-              title="Playground" 
-              isPlayground={true}
-              hoveredItem={hoveredItem}
-              visibleItems={visibleItems}
-              setHoveredItem={setHoveredItem}
-              themeChangeCount={themeChangeCount}
-            />
-          </div>
-        ) : (
-          // Mixed layout: Static About + Synchronized scroll Work/Playground
-          <div className="grid grid-cols-3 gap-2 px-6 h-screen" data-parallax-container>
-            {/* Left Column - About (Static, no scrolling) */}
-            <div className="pt-20 pb-8 overflow-y-auto scrollbar-hide">
-              <div className="space-y-8">
+        {/* Content layout with consistent spacing to prevent jumping */}
+        <div className="grid grid-cols-3 gap-2 px-8" data-parallax-container>
+          {!isParallaxActive ? (
+            <>
+              {/* Static content before header hits top - consistent spacing */}
+              <div className="pt-20 pb-0">
                 <AboutSection 
                   items={aboutItems} 
                   offset={0} 
                   hoveredItem={hoveredItem}
                   visibleItems={visibleItems}
                   setHoveredItem={setHoveredItem}
-                  themeChangeCount={themeChangeCount}
+                  themeChangeCount={0}
                 />
               </div>
-            </div>
-
-            {/* Center Column - Work (Synchronized with Playground) */}
-            <InfiniteScrollLoop 
-              speedMultiplier={1.0} 
-              className="pt-20 pb-8"
-              externalScrollY={masterScrollY}
-              cumulativeProgress={cumulativeProgress}
-              showProgressBar={true}
-            >
-              <div className="space-y-8">
+              <div className="pt-20 pb-0">
                 <ColumnContent 
                   items={workItems} 
                   offset={0} 
@@ -240,19 +183,10 @@ const ParallaxColumns = () => {
                   hoveredItem={hoveredItem}
                   visibleItems={visibleItems}
                   setHoveredItem={setHoveredItem}
-                  themeChangeCount={themeChangeCount}
+                  themeChangeCount={0}
                 />
               </div>
-            </InfiniteScrollLoop>
-
-            {/* Right Column - Playground (Synchronized with Work) */}
-            <InfiniteScrollLoop 
-              speedMultiplier={1.0} 
-              className="pt-20 pb-8"
-              externalScrollY={masterScrollY}
-              cumulativeProgress={cumulativeProgress}
-            >
-              <div className="space-y-8">
+              <div className="pt-20 pb-0">
                 <ColumnContent 
                   items={playgroundItems} 
                   offset={0} 
@@ -261,12 +195,74 @@ const ParallaxColumns = () => {
                   hoveredItem={hoveredItem}
                   visibleItems={visibleItems}
                   setHoveredItem={setHoveredItem}
-                  themeChangeCount={themeChangeCount}
+                  themeChangeCount={0}
                 />
               </div>
-            </InfiniteScrollLoop>
-          </div>
-        )}
+            </>
+          ) : (
+            <>
+              {/* Parallax mode - header is sticky, content needs clearance */}
+              {/* Left Column - About (Static, no scrolling) */}
+              <div className="pt-20 pb-0 h-screen overflow-y-auto scrollbar-hide">
+                <div className="space-y-8">
+                  <AboutSection 
+                    items={aboutItems} 
+                    offset={0} 
+                    hoveredItem={hoveredItem}
+                    visibleItems={visibleItems}
+                    setHoveredItem={setHoveredItem}
+                    themeChangeCount={0}
+                  />
+                </div>
+              </div>
+
+              {/* Center Column - Work (Synchronized with Playground) */}
+              <InfiniteScrollLoop 
+                speedMultiplier={1.0} 
+                className="pt-20 pb-0 h-screen"
+                externalScrollY={masterScrollY}
+                cumulativeProgress={cumulativeProgress}
+                showProgressBar={true}
+                isParallaxActive={isParallaxActive}
+              >
+                <div className="space-y-8">
+                  <ColumnContent 
+                    items={workItems} 
+                    offset={0} 
+                    title="Work" 
+                    isWork={true}
+                    hoveredItem={hoveredItem}
+                    visibleItems={visibleItems}
+                    setHoveredItem={setHoveredItem}
+                    themeChangeCount={0}
+                  />
+                </div>
+              </InfiniteScrollLoop>
+
+              {/* Right Column - Playground (Synchronized with Work) */}
+              <InfiniteScrollLoop 
+                speedMultiplier={1.0} 
+                className="pt-20 pb-0 h-screen"
+                externalScrollY={masterScrollY}
+                cumulativeProgress={cumulativeProgress}
+                isParallaxActive={isParallaxActive}
+              >
+                <div className="space-y-8">
+                  <ColumnContent 
+                    items={playgroundItems} 
+                    offset={0} 
+                    title="Playground" 
+                    isPlayground={true}
+                    hoveredItem={hoveredItem}
+                    visibleItems={visibleItems}
+                    setHoveredItem={setHoveredItem}
+                    themeChangeCount={0}
+                  />
+                </div>
+              </InfiniteScrollLoop>
+            </>
+          )}
+        </div>
       </div>
     </>
   );

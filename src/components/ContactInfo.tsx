@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Copy, Mail, Github, Linkedin } from 'lucide-react';
+import { Copy, Mail, Github, Linkedin, Check } from 'lucide-react';
 import ScrambleText from './ScrambleText';
 
 const ContactInfo = () => {
@@ -34,13 +34,24 @@ const ContactInfo = () => {
           <div className="text-xs font-mono text-muted-foreground">
             <ScrambleText text="nickchoy@berkeley.edu" trigger={themeChangeCount} />
           </div>
-          <button
-            onClick={handleCopyEmail}
-            className="opacity-60 hover:opacity-100 transition-opacity duration-200"
-            title={copied ? "Copied!" : "Copy email"}
-          >
-            <Copy size={12} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleCopyEmail}
+              className={`transition-all duration-200 ${
+                copied 
+                  ? 'opacity-100 text-green-500' 
+                  : 'opacity-60 hover:opacity-100'
+              }`}
+              title={copied ? "Copied!" : "Copy email"}
+            >
+              {copied ? <Check size={12} /> : <Copy size={12} />}
+            </button>
+            {copied && (
+              <span className="text-xs font-mono text-green-500 animate-in fade-in slide-in-from-left-2 duration-200">
+                Copied!
+              </span>
+            )}
+          </div>
         </div>
         
         <div className="space-y-1 mt-3">

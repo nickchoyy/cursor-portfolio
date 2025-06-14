@@ -73,6 +73,14 @@
 
   body {
     @apply bg-background text-foreground font-mono;
+    margin: 0;
+    padding: 0;
+  }
+  
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
   }
 
   html {
@@ -102,10 +110,16 @@
     background-color: hsl(var(--border) / 0.8);
   }
 
-  /* Direct transform animations without physics */
+  /* Smooth transform animations for parallax */
   .parallax-column {
     will-change: transform;
-    transition: transform 0.1s linear;
+    transition: transform 0.16s ease-out;
+  }
+  
+  /* Smooth scrolling for infinite scroll containers */
+  .scrollbar-hide {
+    scroll-behavior: auto;
+    transform: translateZ(0); /* Enable hardware acceleration */
   }
 
   /* Dark mode light effects */

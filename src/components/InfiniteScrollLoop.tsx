@@ -8,6 +8,7 @@ interface InfiniteScrollLoopProps {
   onScroll?: (deltaY: number) => void;
   showProgressBar?: boolean;
   cumulativeProgress?: number;
+  isParallaxActive?: boolean;
 }
 
 export default function InfiniteScrollLoop({ 
@@ -17,7 +18,8 @@ export default function InfiniteScrollLoop({
   externalScrollY,
   onScroll,
   showProgressBar = false,
-  cumulativeProgress = 0
+  cumulativeProgress = 0,
+  isParallaxActive = false
 }: InfiniteScrollLoopProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -32,45 +34,52 @@ export default function InfiniteScrollLoop({
     if (!containerRef.current || !contentRef.current || isInitialized) return;
     
     const container = containerRef.current;
-    
-    // Start at the top of the first copy
     container.scrollTop = 0;
     setScrollY(0);
     setTotalScrollDistance(0);
     setIsInitialized(true);
   }, [isInitialized]);
 
-  // Handle external scroll updates
+  // Reset progress when parallax becomes inactive
   useEffect(() => {
-    if (externalScrollY === undefined || !containerRef.current || !contentRef.current) return;
+    if (!isParallaxActive) {
+      setHasLooped(false);
+      setTotalScrollDistance(0);
+      setScrollY(0);
+    }
+  }, [isParallaxActive]);
+
+  // Handle external scroll updates with pixel-perfect resets
+  useEffect(() => {
+    if (!externalScrollY || !containerRef.current || !contentRef.current) return;
     
     const container = containerRef.current;
     const singleCopyHeight = contentRef.current.scrollHeight / 2;
     
-    // Use external cumulative progress instead of internal tracking
+    // Use external cumulative progress
     if (cumulativeProgress > 0) {
       setTotalScrollDistance(cumulativeProgress);
     }
     
-    // Mark as looped when we've scrolled past one full cycle using cumulative progress
-    if (cumulativeProgress > singleCopyHeight && !hasLooped) {
-      setHasLooped(true);
+    // Apply smooth momentum to scroll updates
+    const smoothMultiplier = 0.8;
+    const newScrollY = externalScrollY * speedMultiplier * smoothMultiplier;
+    
+    // Handle infinite loop with pixel-perfect resets
+    let finalPosition = newScrollY;
+    
+    // If we've scrolled past the first copy
+    if (finalPosition > singleCopyHeight) {
+      if (!hasLooped) {
+        setHasLooped(true);
+      }
+      // Pixel-perfect reset by exactly one copy's height
+      finalPosition = finalPosition - singleCopyHeight;
     }
     
-    // Allow both positive and negative scrolling for going back to hero
-    const scrollY = externalScrollY * speedMultiplier;
-    
-    // Handle infinite loop with earlier resets to reduce upward scroll distance
-    let finalPosition = scrollY;
-    
-    // Early reset when scrolling down - don't let user get too deep into second copy
-    const earlyResetThreshold = singleCopyHeight * 0.3;
-    if (finalPosition > singleCopyHeight + earlyResetThreshold) {
-      // Reset to 20% into first copy instead of exact position
-      finalPosition = singleCopyHeight * 0.2 + (finalPosition % (singleCopyHeight * 0.3));
-    } else if (finalPosition > singleCopyHeight) {
-      // Normal modulo reset for positions just past first copy
-      finalPosition = finalPosition % singleCopyHeight;
+    // Reset hasLooped when scrolling back up to beginning
+    if (finalPosition <= 10 && hasLooped) {
+      setHasLooped(false);
     }
     
     // For upward scrolling, allow negative values to go back to hero
@@ -81,19 +90,21 @@ export default function InfiniteScrollLoop({
     if (!isResettingRef.current) {
       isResettingRef.current = true;
       
-      // Smoother scroll position updates
-      const targetPosition = Math.max(0, finalPosition);
-      container.scrollTop = targetPosition;
-      setScrollY(targetPosition);
-      
-      // Use shorter timeout for smoother transitions
-      setTimeout(() => {
-        isResettingRef.current = false;
-      }, 10);
+      // Use requestAnimationFrame for smoother updates
+      requestAnimationFrame(() => {
+        const targetPosition = Math.max(0, finalPosition);
+        container.scrollTop = targetPosition;
+        setScrollY(targetPosition);
+        
+        // Reset the flag after a short delay
+        setTimeout(() => {
+          isResettingRef.current = false;
+        }, 16); // One frame at 60fps
+      });
     }
   }, [externalScrollY, speedMultiplier, hasLooped, cumulativeProgress]);
 
-  // Handle scroll events
+  // Handle scroll events with pixel-perfect resets
   const handleScroll = useCallback(() => {
     if (!containerRef.current || !contentRef.current || isResettingRef.current) return;
     
@@ -110,83 +121,92 @@ export default function InfiniteScrollLoop({
       return;
     }
     
-    // Earlier reset logic - don't let user scroll too deep into second copy
-    const earlyResetThreshold = singleCopyHeight * 0.3; // Reset at 30% into second copy instead of 90%
-    
-    // If we've scrolled past the early threshold (going down)
-    if (currentScrollTop > singleCopyHeight + earlyResetThreshold) {
-      // Mark as looped when we complete the first full cycle
+    // If we've scrolled past the first copy
+    if (currentScrollTop > singleCopyHeight) {
       if (!hasLooped) setHasLooped(true);
       
       isResettingRef.current = true;
-      // Reset to a position closer to the middle (20% into first copy)
-      const resetPosition = singleCopyHeight * 0.2;
-      container.scrollTop = resetPosition;
-      setScrollY(resetPosition);
+      // Pixel-perfect reset by exactly one copy's height
+      container.scrollTop = currentScrollTop - singleCopyHeight;
+      setScrollY(currentScrollTop - singleCopyHeight);
       setTimeout(() => {
         isResettingRef.current = false;
-      }, 10);
+      }, 16);
       return;
     }
   }, [hasLooped]);
 
-  // Handle wheel events - allow both up and down scrolling
+  // Handle wheel events
   const handleWheel = (e: React.WheelEvent) => {
     if (onScroll) {
       e.preventDefault();
-      // Allow both positive and negative deltaY for up/down scrolling
       onScroll(e.deltaY);
       return;
     }
-    // If no external control, let native scrolling handle it
   };
 
-  // Touch support - only downward
+  // Touch support
   const [touchStart, setTouchStart] = useState<number | null>(null);
+  const lastTouchYRef = useRef<number>(0);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientY);
+    lastTouchYRef.current = e.targetTouches[0].clientY;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!touchStart || !onScroll) return;
     
     const touchCurrent = e.targetTouches[0].clientY;
-    const distance = touchStart - touchCurrent;
+    const distance = lastTouchYRef.current - touchCurrent;
+    lastTouchYRef.current = touchCurrent;
     
-    // Allow both upward and downward swiping
     if (onScroll) {
       e.preventDefault();
-      onScroll(distance * 0.5);
+      onScroll(distance);
     }
   };
 
-  // Calculate progress using external cumulative progress
+  // Calculate progress with pixel-perfect transitions
   const getProgress = () => {
-    if (!contentRef.current) return 0;
+    if (!contentRef.current || !isParallaxActive) return 0;
     const singleCopyHeight = contentRef.current.scrollHeight / 2;
     
-    // Use cumulative progress for accurate progress calculation
-    const progress = Math.min(100, (cumulativeProgress / singleCopyHeight) * 100);
-    return progress;
+    const currentPosition = Math.max(0, externalScrollY || scrollY);
+    
+    // If we're at the very top, return 0%
+    if (currentPosition <= 10) {
+      return 0;
+    }
+    
+    // If we've looped, stay at 100%
+    if (hasLooped) {
+      return 100;
+    }
+    
+    // Calculate progress based on position within the first copy
+    // This ensures 0% at start of first copy and 100% at start of second copy
+    const progress = Math.min(100, (currentPosition / singleCopyHeight) * 100);
+    
+    // Ensure we don't go below 0% or above 100%
+    return Math.max(0, Math.min(100, progress));
   };
 
   return (
     <div className={className} style={{ position: 'relative', height: '100vh', overflow: 'hidden' }} data-infinite-scroll>
-      {/* Top Progress Bar */}
-      {showProgressBar && (
+      {showProgressBar && isParallaxActive && (
         <div 
           className="fixed top-0 left-0 right-0 h-1 bg-muted-foreground/10 z-50"
         >
           <div 
-            className={`h-full transition-all duration-500 ease-out ${
+            className={`h-full transition-all duration-300 ease-out ${
               hasLooped 
-                ? 'bg-gradient-to-r from-red-300 via-yellow-300 via-green-300 via-blue-300 via-indigo-300 to-purple-300 dark:from-red-400 dark:via-yellow-400 dark:via-green-400 dark:via-blue-400 dark:via-indigo-400 dark:to-purple-400 animate-pulse' 
-                : 'bg-foreground dark:bg-foreground'
+                ? 'bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 via-blue-400 via-indigo-400 to-purple-400 animate-pulse' 
+                : 'bg-black dark:bg-white'
             }`}
             style={{ 
               width: `${getProgress()}%`,
-              transition: 'width 0.1s ease-out, background 0.5s ease-out'
+              transition: 'width 0.1s ease-out, background 0.3s ease-out'
             }}
           />
         </div>
@@ -199,6 +219,7 @@ export default function InfiniteScrollLoop({
           overflowY: 'auto',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
+          scrollBehavior: 'auto',
         }}
         className="scrollbar-hide"
         onScroll={handleScroll}
@@ -207,22 +228,22 @@ export default function InfiniteScrollLoop({
         onTouchMove={handleTouchMove}
       >
         <div ref={contentRef} data-content-ref>
-          {/* First copy */}
-          <div key="copy-1">
+          <div key="copy-1" style={{ minHeight: '100vh' }}>
             {children}
           </div>
-          {/* Second copy for seamless loop */}
-          <div key="copy-2">
+          <div key="copy-2" style={{ minHeight: '100vh' }}>
             {children}
           </div>
         </div>
       </div>
       
-      <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
+      <style>
+        {`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+        `}
+      </style>
     </div>
   );
 } 

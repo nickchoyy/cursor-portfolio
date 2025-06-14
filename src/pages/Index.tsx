@@ -7,6 +7,7 @@ import DarkModeToggle from '../components/DarkModeToggle';
 import LoadingScreen from '../components/LoadingScreen';
 import DarkModeTransition from '../components/DarkModeTransition';
 import AsciiSky from '../components/AsciiSky';
+import AsciiCursor from '../components/AsciiCursor';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +21,7 @@ const Index = () => {
       {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
       <DarkModeTransition />
       <AsciiSky />
+      <AsciiCursor />
       
       <div className="bg-background text-foreground">
         <DarkModeToggle />
@@ -31,8 +33,8 @@ const Index = () => {
           <HeroCenter />
         </section>
 
-        {/* Parallax Columns Section - moved up */}
-        <section className="-mt-32 relative z-20">
+        {/* Parallax Columns Section - show peek of images at start */}
+        <section className="-mt-16 relative z-20">
           <ParallaxColumns />
         </section>
       </div>

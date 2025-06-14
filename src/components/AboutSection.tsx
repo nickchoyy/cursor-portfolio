@@ -1,5 +1,6 @@
 import React from 'react';
 import ScrambleText from './ScrambleText';
+import TypewriterText from './TypewriterText';
 
 interface AboutSectionProps {
   items: any[];
@@ -20,14 +21,14 @@ const AboutSection = ({
 }: AboutSectionProps) => (
   <div className="w-full">
     <div 
-      className="space-y-4"
+      className="space-y-2"
       style={{ 
         transform: `translateY(-${offset}px)`
       }}
     >
       {items.map((item, index) => {
         const cardId = `about-${index}`;
-        const isHighlighted = hoveredItem === cardId || (hoveredItem === null && visibleItems.has(cardId));
+        const isHighlighted = hoveredItem === cardId;
         
         return (
           <div 
@@ -35,7 +36,7 @@ const AboutSection = ({
             id={cardId}
             data-card-id={cardId}
             className={`cursor-pointer transition-all duration-300 ${
-              isHighlighted ? 'opacity-100' : 'opacity-75'
+              isHighlighted ? 'opacity-100' : 'opacity-45'
             }`}
             onMouseEnter={() => setHoveredItem(cardId)}
             onMouseLeave={() => setHoveredItem(null)}
@@ -44,11 +45,11 @@ const AboutSection = ({
               isHighlighted ? 'bg-background/80' : ''
             }`}>
               {item.isProfile && (
-                <div className="aspect-square overflow-hidden">
+                <div className="w-full">
                   <img 
                     src={item.image} 
                     alt={item.title}
-                    className="w-full h-full object-cover opacity-80 transition-all duration-300"
+                    className="w-full opacity-80 transition-all duration-300"
                     loading="eager"
                     decoding="async"
                     style={{ imageRendering: 'auto' }}
@@ -56,18 +57,28 @@ const AboutSection = ({
                 </div>
               )}
               
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-3">
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-2">
                   <h3 className="text-xs font-mono font-medium leading-tight transition-colors duration-300">
-                    <ScrambleText text={item.title} trigger={themeChangeCount} />
+                    {themeChangeCount === 0 ? (
+                      <TypewriterText 
+                        text={item.title}
+                        typingSpeed={50}
+                        deletingSpeed={30}
+                        pauseTime={1000}
+                        trigger={isHighlighted}
+                      />
+                    ) : (
+                      <ScrambleText text={item.title} trigger={themeChangeCount} />
+                    )}
                   </h3>
                 </div>
                 
                 <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed transition-colors duration-300">
-                  <ScrambleText text={item.description} trigger={themeChangeCount} />
+                  {themeChangeCount === 0 ? item.description : <ScrambleText text={item.description} trigger={themeChangeCount} />}
                 </p>
                 
-                <div className={`mt-4 h-px bg-gradient-to-r from-border/40 to-transparent transition-all duration-300 ${
+                <div className={`mt-3 h-px bg-gradient-to-r from-border/40 to-transparent transition-all duration-300 ${
                   isHighlighted ? 'w-12 from-primary/60' : 'w-6'
                 }`}></div>
               </div>

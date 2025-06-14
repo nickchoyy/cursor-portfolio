@@ -45,7 +45,7 @@ const InfiniteScrollDemo: React.FC<InfiniteScrollDemoProps> = ({ className = '' 
     <div className={`bg-background border border-border rounded-lg p-6 ${className}`}>
       <div className="mb-6">
         <h2 className="text-lg font-mono font-semibold mb-2">
-          <ScrambleText text="Infinite Scroll Portfolio" />
+          <ScrambleText text="Infinite Scroll Portfolio" trigger={0} />
         </h2>
         <p className="text-sm text-muted-foreground font-mono">
           Scroll to see the magic ✨ Lists duplicate automatically when you reach the bottom
@@ -83,12 +83,12 @@ const InfiniteScrollDemo: React.FC<InfiniteScrollDemoProps> = ({ className = '' 
               >
                 <div className="flex justify-between items-start mb-1">
                   <h3 className="font-mono text-sm font-medium group-hover:text-foreground transition-colors">
-                    <ScrambleText text={project.name} />
+                    <ScrambleText text={project.name} trigger={0} />
                   </h3>
                   <span className="text-xs text-muted-foreground font-mono">{project.year}</span>
                 </div>
                 <p className="text-xs text-muted-foreground font-mono">
-                  <ScrambleText text={project.tech} />
+                  <ScrambleText text={project.tech} trigger={0} />
                 </p>
               </div>
             ))}
@@ -113,8 +113,8 @@ const InfiniteScrollDemo: React.FC<InfiniteScrollDemoProps> = ({ className = '' 
                 key={`skill-${index}`}
                 className="px-3 py-2 bg-muted/30 rounded-md text-center hover:bg-muted/50 transition-colors"
               >
-                <span className="text-xs font-mono">
-                  <ScrambleText text={skill.name} />
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-muted/40 text-muted-foreground/80 uppercase tracking-wide">
+                  <ScrambleText text={skill.name} trigger={0} />
                 </span>
               </div>
             ))}
@@ -142,10 +142,10 @@ const InfiniteScrollDemo: React.FC<InfiniteScrollDemoProps> = ({ className = '' 
                 <div className="w-2 h-2 bg-green-500/50 rounded-full flex-shrink-0"></div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-mono font-medium group-hover:text-foreground transition-colors">
-                    <ScrambleText text={achievement.title} />
+                    <ScrambleText text={achievement.title} trigger={0} />
                   </div>
                   <div className="text-xs text-muted-foreground font-mono">
-                    <ScrambleText text={`${achievement.org} • ${achievement.type}`} />
+                    <ScrambleText text={`${achievement.org} • ${achievement.type}`} trigger={0} />
                   </div>
                 </div>
               </div>

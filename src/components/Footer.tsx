@@ -78,9 +78,14 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p className="text-xs font-mono text-muted-foreground">
-            © 2024 Portfolio. Designed & developed with care.
-          </p>
+          <div className="flex flex-col space-y-2">
+            <p className="text-xs font-mono text-muted-foreground">
+              © 2024 Portfolio. Designed & developed with care.
+            </p>
+            <p className="text-xs font-mono text-muted-foreground/60">
+              art made by Nick Choy
+            </p>
+          </div>
           <div className="flex items-center space-x-4">
             <div className="w-1 h-1 bg-foreground rounded-full"></div>
             <p className="text-xs font-mono text-muted-foreground">

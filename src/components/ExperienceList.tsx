@@ -23,7 +23,7 @@ const ExperienceList = () => {
         {experiences.map((exp, index) => (
           <div 
             key={index}
-            className={`flex gap-3 text-xs font-mono transition-all duration-300 cursor-pointer ${
+            className={`flex gap-3 text-[11px] font-mono transition-all duration-300 cursor-pointer ${
               hoveredExperience === index ? 'text-muted-foreground/50' : ''
             }`}
             onMouseEnter={() => setHoveredExperience(index)}
@@ -33,7 +33,7 @@ const ExperienceList = () => {
               <ScrambleText text={exp.year} trigger={themeChangeCount} speed="fast" />
             </div>
             <div className="flex-1">
-              <div className="font-medium leading-tight">
+              <div className="font-[10px] leading-tight">
                 <ScrambleText text={exp.company} trigger={themeChangeCount} speed="medium" />
               </div>
               <div className="text-muted-foreground leading-tight">
@@ -46,7 +46,7 @@ const ExperienceList = () => {
 
       {/* Skills Container */}
       <div className="mt-6">
-        <div className="text-xs font-mono leading-relaxed text-muted-foreground">
+        <div className="text-[10px] font-mono leading-relaxed text-muted-foreground">
           <ScrambleText 
             text="Figma, Adobe Creative Suite, Blender, Framer, Oragami, Framer, Design Systems, Python, Prototyping, Marketing, Product Design, Accessibility Design, A/B Testing" 
             trigger={themeChangeCount} 
